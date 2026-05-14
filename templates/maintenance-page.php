@@ -3,22 +3,30 @@
  * Techanum Maintenance - Maintenance Page Template
  *
  * @package TechanumMaintenance
- * @since 1.0.0
+ * @since   1.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Οι headers στέλνονται ήδη από την κλάση, αλλά για σιγουριά
+// Οι headers στέλνονται ήδη από την κλάση, αλλά για σιγουριά.
 if ( ! headers_sent() ) {
 	status_header( 503 );
 	header( 'Retry-After: 3600' );
 }
 
-// Λήψη δυναμικού μηνύματος μέσω Antigravity API
-$antigravity_api     = new Techanum_Antigravity_API();
-$maintenance_message = $antigravity_api->get_dynamic_message();
+// Λήψη custom ρυθμίσεων.
+$custom_logo    = get_option( 'techanum_maintenance_logo', '' );
+$custom_message = get_option( 'techanum_maintenance_custom_message', '' );
+
+// Αν υπάρχει custom μήνυμα, αυτό έχει προτεραιότητα· αλλιώς ζητάμε από το API.
+if ( ! empty( $custom_message ) ) {
+	$maintenance_message = $custom_message;
+} else {
+	$antigravity_api     = new Techanum_Antigravity_API();
+	$maintenance_message = $antigravity_api->get_dynamic_message();
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -58,6 +66,17 @@ $maintenance_message = $antigravity_api->get_dynamic_message();
 			margin-bottom: 24px;
 		}
 
+		.maintenance-logo {
+			margin-bottom: 24px;
+		}
+
+		.maintenance-logo img {
+			max-width: 150px;
+			height: auto;
+			display: block;
+			margin: 0 auto;
+		}
+
 		.maintenance-title {
 			font-size: 24px;
 			font-weight: 600;
@@ -91,7 +110,16 @@ $maintenance_message = $antigravity_api->get_dynamic_message();
 </head>
 <body>
 	<div class="maintenance-container">
-		<div class="maintenance-icon">🛠️</div>
+		<?php if ( ! empty( $custom_logo ) ) : ?>
+			<div class="maintenance-logo">
+				<img
+					src="<?php echo esc_url( $custom_logo ); ?>"
+					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+				/>
+			</div>
+		<?php else : ?>
+			<div class="maintenance-icon">🛠️</div>
+		<?php endif; ?>
 		<h1 class="maintenance-title">
 			<?php echo esc_html__( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
 		</h1>

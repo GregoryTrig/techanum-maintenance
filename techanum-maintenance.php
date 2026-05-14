@@ -29,6 +29,14 @@ if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
     require_once plugin_dir_path( __FILE__ ) . 'includes/class-antigravity-api.php';
 }
 
+// Φόρτωση της κλάσης ρυθμίσεων (μόνο στο admin)
+if ( is_admin() ) {
+    if ( ! class_exists( 'Techanum_Settings' ) ) {
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-settings.php';
+    }
+    new Techanum_Settings();
+}
+
 // Εκκίνηση του plugin
 $techanum_maintenance = new Techanum_Maintenance_Mode();
 

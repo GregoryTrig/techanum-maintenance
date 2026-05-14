@@ -16,3 +16,11 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+// Include the maintenance mode class
+if ( ! class_exists( 'Techanum_Maintenance' ) ) {
+    include_once plugin_dir_path( __FILE__ ) . 'includes/class-maintenance-mode.php';
+}
+
+// Initialize the plugin
+$techanum_maintenance = new Techanum_Maintenance();

@@ -125,17 +125,12 @@ class Techanum_Settings {
 			return;
 		}
 
+		// Φόρτωση του WordPress Media Uploader.
 		wp_enqueue_media();
 
-		wp_enqueue_script(
-			'techanum-media-uploader',
-			false,
-			array( 'jquery' ),
-			'1.0.0',
-			true
-		);
-
-		// Inline script for the media uploader button.
+		// Inline script για το κουμπί media uploader.
+		// Χρησιμοποιούμε το 'jquery' handle (πάντα διαθέσιμο στο admin)
+		// ώστε το wp_add_inline_script να λειτουργεί σωστά.
 		$inline_js = "
 			jQuery( document ).ready( function( $ ) {
 				var mediaUploader;
@@ -174,7 +169,7 @@ class Techanum_Settings {
 			});
 		";
 
-		wp_add_inline_script( 'techanum-media-uploader', $inline_js );
+		wp_add_inline_script( 'jquery', $inline_js );
 	}
 
 	/**
@@ -208,7 +203,7 @@ class Techanum_Settings {
 			<button type="button" class="button" id="techanum-upload-logo-btn">
 				<?php esc_html_e( 'Upload Logo', 'techanum-maintenance' ); ?>
 			</button>
-			<button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $hidden; ?>>
+			<button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 				<?php esc_html_e( 'Remove Logo', 'techanum-maintenance' ); ?>
 			</button>
 			<div style="margin-top: 10px;">

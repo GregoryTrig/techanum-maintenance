@@ -5,45 +5,63 @@
  * Handles the maintenance mode functionality for the plugin.
  *
  * @package TechanumMaintenance
+ * @since 1.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-/**
- * Class Techanum_Maintenance_Mode
- */
 class Techanum_Maintenance_Mode {
+
+    /**
+     * Option name for maintenance state.
+     *
+     * @var string
+     */
+    private $option_name = 'techanum_maintenance_active';
 
     /**
      * Constructor.
      */
     public function __construct() {
-        add_filter( 'template_include', array( $this, 'maintenance_template' ), 999 );
+        // Προσθήκη του φίλτρου μόνο όταν είναι ενεργή η συντήρηση
+        if ( $this->is_maintenance_active() ) {
+            add_filter( 'template_include', array( $this, 'maintenance_template' ), 9999 );
+        }
     }
 
     /**
      * Check if maintenance mode is enabled.
      *
-     * @return bool True if maintenance mode is enabled, false otherwise.
+     * @return bool
      */
-    public function is_maintenance_enabled() {
-        return (bool) get_option( 'techanum_maintenance_enabled', false );
+    public function is_maintenance_active() {
+        return (bool) get_option( $this->option_name, false );
     }
 
     /**
      * Filter the template to show maintenance page if enabled.
      *
      * @param string $template The path of the template to include.
-     * @return string The modified template path.
+     * @return string
      */
     public function maintenance_template( $template ) {
-        if ( $this->is_maintenance_enabled() && ! current_user_can( 'administrator' ) && ! is_admin() ) {
-            $maintenance_template = plugin_dir_path( dirname( __DIR__ ) ) . 'templates/maintenance-page.php';
-            if ( file_exists( $maintenance_template ) ) {
-                return $maintenance_template;
-            }
+        // Επέτρεψε στους διαχειριστές να βλέπουν το κανονικό site
+        if ( current_user_can( 'manage_options' ) ) {
+            return $template;
+        }
+
+        // Μην επηρεάζεις το backend
+        if ( is_admin() ) {
+            return $template;
+        }
+
+        $maintenance_template = plugin_dir_path( dirname( __FILE__ ) ) . 'templates/maintenance-page.php';
+        if ( file_exists( $maintenance_template ) ) {
+            status_header( 503 );
+            header( 'Retry-After: 3600' );
+            return $maintenance_template;
         }
 
         return $template;

@@ -10,17 +10,35 @@
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       techanum-maintenance
  * Domain Path:       /languages
+ *
+ * @package TechanumMaintenance
  */
 
-// Ασφάλεια: Εμποδίζει την απευθείας πρόσβαση στο αρχείο από τον browser
+// Αποτροπή άμεσης πρόσβασης
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Include the maintenance mode class
+// Φόρτωση της κλάσης συντήρησης
 if ( ! class_exists( 'Techanum_Maintenance_Mode' ) ) {
-    include_once plugin_dir_path( __FILE__ ) . 'includes/class-maintenance-mode.php';
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-maintenance-mode.php';
 }
 
-// Initialize the plugin
+// Εκκίνηση του plugin
 $techanum_maintenance = new Techanum_Maintenance_Mode();
+
+/**
+ * Ενεργοποίηση plugin - Προεπιλογές
+ */
+function techanum_maintenance_activate() {
+    add_option( 'techanum_maintenance_active', false );
+}
+register_activation_hook( __FILE__, 'techanum_maintenance_activate' );
+
+/**
+ * Απενεργοποίηση plugin - Καθάρισμα
+ */
+function techanum_maintenance_deactivate() {
+    delete_option( 'techanum_maintenance_active' );
+}
+register_deactivation_hook( __FILE__, 'techanum_maintenance_deactivate' );

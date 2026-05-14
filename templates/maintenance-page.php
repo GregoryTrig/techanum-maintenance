@@ -1,55 +1,102 @@
+<?php
+/**
+ * Techanum Maintenance - Maintenance Page Template
+ *
+ * @package TechanumMaintenance
+ * @since 1.0.0
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+// Οι headers στέλνονται ήδη από την κλάση, αλλά για σιγουριά
+if ( ! headers_sent() ) {
+    status_header( 503 );
+    header( 'Retry-After: 3600' );
+}
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html <?php language_attributes(); ?>>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Under Maintenance</title>
+    <title><?php echo esc_html__( 'Σε Συντήρηση - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f7;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
         }
+
         .maintenance-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 60px 40px;
+            max-width: 520px;
+            width: 100%;
             text-align: center;
-            background-color: #fff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            width: 90%;
         }
-        h1 {
-            color: #e74c3c;
-            margin-bottom: 20px;
+
+        .maintenance-icon {
+            font-size: 48px;
+            margin-bottom: 24px;
         }
-        p {
-            font-size: 18px;
+
+        .maintenance-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+        }
+
+        .maintenance-message {
+            font-size: 16px;
+            color: #86868b;
             line-height: 1.6;
+            margin-bottom: 32px;
         }
-        @media (max-width: 768px) {
+
+        .maintenance-footer {
+            font-size: 13px;
+            color: #aeaeb2;
+            margin-top: 40px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
             .maintenance-container {
-                padding: 20px;
+                padding: 40px 24px;
             }
-            h1 {
-                font-size: 24px;
-            }
-            p {
-                font-size: 16px;
+            .maintenance-title {
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
     <div class="maintenance-container">
-        <h1>Site Under Maintenance</h1>
-        <p>We are currently performing maintenance on our website. Please check back soon!</p>
+        <div class="maintenance-icon">🛠️</div>
+        <h1 class="maintenance-title">
+            <?php echo esc_html__( 'Είμαστε σε προγραμματισμένη συντήρηση', 'techanum-maintenance' ); ?>
+        </h1>
+        <p class="maintenance-message">
+            <?php echo esc_html__( 'Κάνουμε μια μικρή ανανέωση για να βελτιώσουμε την εμπειρία σας. Επιστρέφουμε σύντομα!', 'techanum-maintenance' ); ?>
+        </p>
+        <p class="maintenance-footer">
+            &copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?>
+        </p>
     </div>
 </body>
 </html>

@@ -12,9 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Techanum_Maintenance
+ * Class Techanum_Maintenance_Mode
  */
-class Techanum_Maintenance {
+class Techanum_Maintenance_Mode {
 
     /**
      * Constructor.

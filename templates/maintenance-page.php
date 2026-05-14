@@ -7,96 +7,100 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 // Οι headers στέλνονται ήδη από την κλάση, αλλά για σιγουριά
 if ( ! headers_sent() ) {
-    status_header( 503 );
-    header( 'Retry-After: 3600' );
+	status_header( 503 );
+	header( 'Retry-After: 3600' );
 }
+
+// Λήψη δυναμικού μηνύματος μέσω Antigravity API
+$antigravity_api     = new Techanum_Antigravity_API();
+$maintenance_message = $antigravity_api->get_dynamic_message();
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html__( 'Under Maintenance - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title><?php echo esc_html__( 'Under Maintenance - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #f5f5f7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+			background: #f5f5f7;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			padding: 20px;
+		}
 
-        .maintenance-container {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            padding: 60px 40px;
-            max-width: 520px;
-            width: 100%;
-            text-align: center;
-        }
+		.maintenance-container {
+			background: #ffffff;
+			border-radius: 12px;
+			box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+			padding: 60px 40px;
+			max-width: 520px;
+			width: 100%;
+			text-align: center;
+		}
 
-        .maintenance-icon {
-            font-size: 48px;
-            margin-bottom: 24px;
-        }
+		.maintenance-icon {
+			font-size: 48px;
+			margin-bottom: 24px;
+		}
 
-        .maintenance-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 16px;
-        }
+		.maintenance-title {
+			font-size: 24px;
+			font-weight: 600;
+			color: #1d1d1f;
+			margin-bottom: 16px;
+		}
 
-        .maintenance-message {
-            font-size: 16px;
-            color: #86868b;
-            line-height: 1.6;
-            margin-bottom: 32px;
-        }
+		.maintenance-message {
+			font-size: 16px;
+			color: #86868b;
+			line-height: 1.6;
+			margin-bottom: 32px;
+		}
 
-        .maintenance-footer {
-            font-size: 13px;
-            color: #aeaeb2;
-            margin-top: 40px;
-        }
+		.maintenance-footer {
+			font-size: 13px;
+			color: #aeaeb2;
+			margin-top: 40px;
+		}
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .maintenance-container {
-                padding: 40px 24px;
-            }
-            .maintenance-title {
-                font-size: 20px;
-            }
-        }
-    </style>
+		/* Responsive */
+		@media (max-width: 600px) {
+			.maintenance-container {
+				padding: 40px 24px;
+			}
+			.maintenance-title {
+				font-size: 20px;
+			}
+		}
+	</style>
 </head>
 <body>
-    <div class="maintenance-container">
-        <div class="maintenance-icon">🛠️</div>
-        <h1 class="maintenance-title">
-            <?php echo esc_html__( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
-        </h1>
-        <p class="maintenance-message">
-            <?php echo esc_html__( 'We are performing scheduled maintenance. We will be back shortly!', 'techanum-maintenance' ); ?>
-        </p>
-        <p class="maintenance-footer">
-            &copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?>
-        </p>
-    </div>
+	<div class="maintenance-container">
+		<div class="maintenance-icon">🛠️</div>
+		<h1 class="maintenance-title">
+			<?php echo esc_html__( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
+		</h1>
+		<p class="maintenance-message">
+			<?php echo esc_html( $maintenance_message ); ?>
+		</p>
+		<p class="maintenance-footer">
+			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?>
+		</p>
+	</div>
 </body>
-</html>
+</html>

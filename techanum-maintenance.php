@@ -24,6 +24,11 @@ if ( ! class_exists( 'Techanum_Maintenance_Mode' ) ) {
     require_once plugin_dir_path( __FILE__ ) . 'includes/class-maintenance-mode.php';
 }
 
+// Φόρτωση της κλάσης Antigravity API
+if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-antigravity-api.php';
+}
+
 // Εκκίνηση του plugin
 $techanum_maintenance = new Techanum_Maintenance_Mode();
 

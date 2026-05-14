@@ -21,7 +21,7 @@ if ( ! headers_sent() ) {
 <head>
     <meta charset="<?php bloginfo( 'charset' ); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html__( 'Σε Συντήρηση - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
+    <title><?php echo esc_html__( 'Under Maintenance - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
     <style>
         * {
             margin: 0;
@@ -89,10 +89,10 @@ if ( ! headers_sent() ) {
     <div class="maintenance-container">
         <div class="maintenance-icon">🛠️</div>
         <h1 class="maintenance-title">
-            <?php echo esc_html__( 'Είμαστε σε προγραμματισμένη συντήρηση', 'techanum-maintenance' ); ?>
+            <?php echo esc_html__( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
         </h1>
         <p class="maintenance-message">
-            <?php echo esc_html__( 'Κάνουμε μια μικρή ανανέωση για να βελτιώσουμε την εμπειρία σας. Επιστρέφουμε σύντομα!', 'techanum-maintenance' ); ?>
+            <?php echo esc_html__( 'We are performing scheduled maintenance. We will be back shortly!', 'techanum-maintenance' ); ?>
         </p>
         <p class="maintenance-footer">
             &copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?>

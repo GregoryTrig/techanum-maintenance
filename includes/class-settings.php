@@ -69,6 +69,16 @@ class Techanum_Settings {
 		// --- Register settings ---
 		register_setting(
 			$this->option_group,
+			'techanum_maintenance_active',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
+
+		register_setting(
+			$this->option_group,
 			'techanum_maintenance_logo',
 			array(
 				'type'              => 'string',
@@ -95,6 +105,22 @@ class Techanum_Settings {
 				'sanitize_callback' => array( $this, 'sanitize_silent_roles' ),
 				'default'           => array(),
 			)
+		);
+
+		// --- Maintenance Mode Section ---
+		add_settings_section(
+			'techanum_maintenance_general',
+			__( 'Maintenance Mode', 'techanum-maintenance' ),
+			array( $this, 'render_general_section_description' ),
+			$this->page_slug
+		);
+
+		add_settings_field(
+			'techanum_maintenance_active',
+			__( 'Enable Maintenance Mode', 'techanum-maintenance' ),
+			array( $this, 'render_active_field' ),
+			$this->page_slug,
+			'techanum_maintenance_general'
 		);
 
 		// --- Section ---
@@ -197,6 +223,42 @@ class Techanum_Settings {
 		";
 
 		wp_add_inline_script( 'jquery', $inline_js );
+	}
+
+	/**
+	 * Render the general (Maintenance Mode) section description.
+	 *
+	 * @return void
+	 */
+	public function render_general_section_description() {
+		echo '<p>' . esc_html__(
+			'Enable or disable the maintenance mode. When active, visitors will see the maintenance page instead of your site.',
+			'techanum-maintenance'
+		) . '</p>';
+	}
+
+	/**
+	 * Render the maintenance mode active toggle field.
+	 *
+	 * @return void
+	 */
+	public function render_active_field() {
+		$is_active = (bool) get_option( 'techanum_maintenance_active', false );
+		?>
+		<label>
+			<input
+				type="checkbox"
+				id="techanum-maintenance-active"
+				name="techanum_maintenance_active"
+				value="1"
+				<?php checked( $is_active ); ?>
+			/>
+			<?php esc_html_e( 'Put the site in maintenance mode', 'techanum-maintenance' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'When enabled, all visitors (except administrators) will see the maintenance page.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
 	}
 
 	/**

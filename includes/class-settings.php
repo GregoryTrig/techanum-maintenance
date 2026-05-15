@@ -99,6 +99,16 @@ class Techanum_Settings {
 
 		register_setting(
 			$this->option_group,
+			'techanum_excluded_roles',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_excluded_roles' ),
+				'default'           => array(),
+			)
+		);
+
+		register_setting(
+			$this->option_group,
 			'techanum_silent_roles',
 			array(
 				'type'              => 'array',
@@ -119,6 +129,14 @@ class Techanum_Settings {
 			'techanum_maintenance_active',
 			__( 'Enable Maintenance Mode', 'techanum-maintenance' ),
 			array( $this, 'render_active_field' ),
+			$this->page_slug,
+			'techanum_maintenance_general'
+		);
+
+		add_settings_field(
+			'techanum_excluded_roles',
+			__( 'Excluded Roles', 'techanum-maintenance' ),
+			array( $this, 'render_excluded_roles_field' ),
 			$this->page_slug,
 			'techanum_maintenance_general'
 		);
@@ -437,6 +455,89 @@ class Techanum_Settings {
 		);
 
 		// Return re-indexed array.
+		return array_values( $sanitized );
+	}
+
+	/**
+	 * Render the excluded roles checkboxes field.
+	 *
+	 * These are the roles that bypass the maintenance page entirely.
+	 * Administrators are always excluded and do not appear in the list.
+	 *
+	 * @return void
+	 */
+	public function render_excluded_roles_field() {
+		$excluded_roles = get_option( 'techanum_excluded_roles', array() );
+
+		// Get all editable roles.
+		$editable_roles = get_editable_roles();
+
+		// Remove the administrator role — admins are always excluded automatically.
+		unset( $editable_roles['administrator'] );
+
+		if ( empty( $editable_roles ) ) {
+			echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
+			return;
+		}
+
+		?>
+		<fieldset>
+			<?php
+			/*
+			 * Hidden sentinel field: ensures that when ALL checkboxes are unchecked
+			 * the form still submits a value for this option, so the Settings API
+			 * can call the sanitize callback and save an empty array (instead of
+			 * leaving the old value in the database).
+			 */
+			?>
+			<input type="hidden" name="techanum_excluded_roles_submitted" value="1" />
+			<?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
+				<label style="display: block; margin-bottom: 8px;">
+					<input
+						type="checkbox"
+						name="techanum_excluded_roles[]"
+						value="<?php echo esc_attr( $role_slug ); ?>"
+						<?php checked( in_array( $role_slug, $excluded_roles, true ), true ); ?>
+					/>
+					<?php echo esc_html( $role_data['name'] ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<p class="description">
+			<?php esc_html_e( 'Users with the selected roles will bypass the maintenance page and see the normal site. Administrators are always excluded automatically.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Sanitize the excluded roles input.
+	 *
+	 * Uses the same sentinel-field pattern as sanitize_silent_roles()
+	 * to correctly handle the case where all checkboxes are unchecked.
+	 * Administrators are always stripped from the list.
+	 *
+	 * @param mixed $value The submitted value from the checkbox field.
+	 * @return array Array of valid role slugs or empty array.
+	 */
+	public function sanitize_excluded_roles( $value ) {
+		if ( ! is_array( $value ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['techanum_excluded_roles_submitted'] ) ) {
+				return array();
+			}
+			return get_option( 'techanum_excluded_roles', array() );
+		}
+
+		$all_roles   = wp_roles()->get_names();
+		$valid_roles = array_keys( $all_roles );
+
+		$sanitized = array_filter(
+			$value,
+			static function ( $role ) use ( $valid_roles ) {
+				return 'administrator' !== $role && in_array( $role, $valid_roles, true );
+			}
+		);
+
 		return array_values( $sanitized );
 	}
 

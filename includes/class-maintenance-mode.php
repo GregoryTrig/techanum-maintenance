@@ -41,19 +41,50 @@ class Techanum_Maintenance_Mode {
     }
 
     /**
+     * Check if the current user's role is in the excluded roles list.
+     *
+     * Administrators are always excluded regardless of the saved option.
+     *
+     * @return bool True if the user should bypass the maintenance page.
+     */
+    private function is_user_excluded() {
+        // Administrators always bypass maintenance mode.
+        if ( current_user_can( 'manage_options' ) ) {
+            return true;
+        }
+
+        // Check if the user's role is in the excluded roles list.
+        $excluded_roles = get_option( 'techanum_excluded_roles', array() );
+        if ( empty( $excluded_roles ) ) {
+            return false;
+        }
+
+        $user       = wp_get_current_user();
+        $user_roles = (array) $user->roles;
+
+        foreach ( $user_roles as $role ) {
+            if ( in_array( $role, $excluded_roles, true ) ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Filter the template to show maintenance page if enabled.
      *
      * @param string $template The path of the template to include.
      * @return string
      */
     public function maintenance_template( $template ) {
-        // Επέτρεψε στους διαχειριστές να βλέπουν το κανονικό site
-        if ( current_user_can( 'manage_options' ) ) {
+        // Μην επηρεάζεις το backend
+        if ( is_admin() ) {
             return $template;
         }
 
-        // Μην επηρεάζεις το backend
-        if ( is_admin() ) {
+        // Επέτρεψε στους εξαιρούμενους χρήστες να βλέπουν το κανονικό site
+        if ( $this->is_user_excluded() ) {
             return $template;
         }
 

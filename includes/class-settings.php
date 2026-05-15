@@ -352,8 +352,11 @@ class Techanum_Settings {
 	public function render_silent_roles_field() {
 		$silent_roles = get_option( 'techanum_silent_roles', array() );
 
-		// Get all editable roles (excludes administrator).
+		// Get all editable roles.
 		$editable_roles = get_editable_roles();
+
+		// Remove the administrator role — admins are always excluded automatically.
+		unset( $editable_roles['administrator'] );
 
 		if ( empty( $editable_roles ) ) {
 			echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
@@ -362,6 +365,15 @@ class Techanum_Settings {
 
 		?>
 		<fieldset>
+			<?php
+			/*
+			 * Hidden sentinel field: ensures that when ALL checkboxes are unchecked
+			 * the form still submits a value for this option, so the Settings API
+			 * can call the sanitize callback and save an empty array (instead of
+			 * leaving the old value in the database).
+			 */
+			?>
+			<input type="hidden" name="techanum_silent_roles_submitted" value="1" />
 			<?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
 				<label style="display: block; margin-bottom: 8px;">
 					<input
@@ -375,7 +387,7 @@ class Techanum_Settings {
 			<?php endforeach; ?>
 		</fieldset>
 		<p class="description">
-			<?php esc_html_e( 'Users with the selected roles will not see any admin notices.', 'techanum-maintenance' ); ?>
+			<?php esc_html_e( 'Users with the selected roles will not see any admin notices. Administrators are always excluded automatically.', 'techanum-maintenance' ); ?>
 		</p>
 		<?php
 	}
@@ -386,24 +398,41 @@ class Techanum_Settings {
 	 * Validates that each submitted role slug is a valid WordPress role
 	 * and returns an array of valid role slugs.
 	 *
+	 * When all checkboxes are unchecked, HTML forms do not submit the
+	 * checkbox array at all, so $value will be null/non-array. We use
+	 * the hidden sentinel field 'techanum_silent_roles_submitted' to
+	 * distinguish "form was submitted with nothing checked" (save empty
+	 * array) from "option was not part of this request" (keep old value).
+	 *
+	 * Administrators are always excluded from the list regardless of input.
+	 *
 	 * @param mixed $value The submitted value from the checkbox field.
 	 * @return array Array of valid role slugs or empty array.
 	 */
 	public function sanitize_silent_roles( $value ) {
-		// If value is not an array, return empty array.
+		// If the form was submitted but no checkboxes were checked,
+		// $value will be null. The sentinel hidden field confirms the
+		// form was actually submitted, so we return an empty array to
+		// clear the saved roles.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
 		if ( ! is_array( $value ) ) {
-			return array();
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['techanum_silent_roles_submitted'] ) ) {
+				return array();
+			}
+			// Not submitted via our form — leave unchanged.
+			return get_option( 'techanum_silent_roles', array() );
 		}
 
 		// Get all valid role slugs in the system.
-		$all_roles = wp_roles()->get_names();
+		$all_roles   = wp_roles()->get_names();
 		$valid_roles = array_keys( $all_roles );
 
-		// Filter to only include valid roles.
+		// Filter to only include valid roles, and never allow 'administrator'.
 		$sanitized = array_filter(
 			$value,
 			static function ( $role ) use ( $valid_roles ) {
-				return in_array( $role, $valid_roles, true );
+				return 'administrator' !== $role && in_array( $role, $valid_roles, true );
 			}
 		);
 

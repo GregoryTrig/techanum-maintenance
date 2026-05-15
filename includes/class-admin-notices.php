@@ -56,6 +56,11 @@ class Techanum_Maintenance_Admin_Notices {
 
 		$user_roles = (array) $user->roles;
 
+		// Administrators are never suppressed, regardless of saved options.
+		if ( in_array( 'administrator', $user_roles, true ) ) {
+			return;
+		}
+
 		// Check if any of the user's roles are in the silent roles list.
 		$should_suppress = false;
 		foreach ( $user_roles as $role ) {

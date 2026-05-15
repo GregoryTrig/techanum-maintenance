@@ -87,6 +87,16 @@ class Techanum_Settings {
 			)
 		);
 
+		register_setting(
+			$this->option_group,
+			'techanum_silent_roles',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_silent_roles' ),
+				'default'           => array(),
+			)
+		);
+
 		// --- Section ---
 		add_settings_section(
 			'techanum_maintenance_customization',
@@ -110,6 +120,23 @@ class Techanum_Settings {
 			array( $this, 'render_message_field' ),
 			$this->page_slug,
 			'techanum_maintenance_customization'
+		);
+
+		// --- Admin Notices Management Section ---
+		add_settings_section(
+			'techanum_notices_management',
+			__( 'Admin Notices Management', 'techanum-maintenance' ),
+			array( $this, 'render_notices_section_description' ),
+			$this->page_slug
+		);
+
+		// --- Admin Notices Management Fields ---
+		add_settings_field(
+			'techanum_silent_roles',
+			__( 'Silent Roles', 'techanum-maintenance' ),
+			array( $this, 'render_silent_roles_field' ),
+			$this->page_slug,
+			'techanum_notices_management'
 		);
 	}
 
@@ -241,6 +268,85 @@ class Techanum_Settings {
 			<?php esc_html_e( 'If set, this message will be shown instead of the AI-generated one.', 'techanum-maintenance' ); ?>
 		</p>
 		<?php
+	}
+
+	/**
+	 * Render the admin notices management section description.
+	 *
+	 * @return void
+	 */
+	public function render_notices_section_description() {
+		echo '<p>' . esc_html__(
+			'Select which user roles should not see WordPress admin notices. Administrators will always see notifications.',
+			'techanum-maintenance'
+		) . '</p>';
+	}
+
+	/**
+	 * Render the silent roles checkboxes field.
+	 *
+	 * @return void
+	 */
+	public function render_silent_roles_field() {
+		$silent_roles = get_option( 'techanum_silent_roles', array() );
+
+		// Get all editable roles (excludes administrator).
+		$editable_roles = get_editable_roles();
+
+		if ( empty( $editable_roles ) ) {
+			echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
+			return;
+		}
+
+		?>
+		<fieldset>
+			<?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
+				<label style="display: block; margin-bottom: 8px;">
+					<input
+						type="checkbox"
+						name="techanum_silent_roles[]"
+						value="<?php echo esc_attr( $role_slug ); ?>"
+						<?php checked( in_array( $role_slug, $silent_roles, true ), true ); ?>
+					/>
+					<?php echo esc_html( $role_data['name'] ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<p class="description">
+			<?php esc_html_e( 'Users with the selected roles will not see any admin notices.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Sanitize the silent roles input.
+	 *
+	 * Validates that each submitted role slug is a valid WordPress role
+	 * and returns an array of valid role slugs.
+	 *
+	 * @param mixed $value The submitted value from the checkbox field.
+	 * @return array Array of valid role slugs or empty array.
+	 */
+	public function sanitize_silent_roles( $value ) {
+		// If value is not an array, return empty array.
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		// Get all valid role slugs in the system.
+		$all_roles = wp_roles()->get_names();
+		$valid_roles = array_keys( $all_roles );
+
+		// Filter to only include valid roles.
+		$sanitized = array_filter(
+			$value,
+			static function ( $role ) use ( $valid_roles ) {
+				return in_array( $role, $valid_roles, true );
+			}
+		);
+
+		// Return re-indexed array.
+		return array_values( $sanitized );
 	}
 
 	/**

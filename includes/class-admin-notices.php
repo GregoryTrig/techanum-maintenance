@@ -23,13 +23,13 @@ class Techanum_Maintenance_Admin_Notices {
 
 	/**
 	 * Constructor — register hooks in the admin area.
+	 *
+	 * Note: We do NOT call is_user_logged_in() here because the constructor
+	 * runs during plugin load, before WordPress has fully initialised the
+	 * authentication layer. The actual user/role check is deferred to the
+	 * admin_init callback, where all auth functions are available.
 	 */
 	public function __construct() {
-		// Only proceed if user is logged in and in admin.
-		if ( ! is_user_logged_in() ) {
-			return;
-		}
-
 		add_action( 'admin_init', array( $this, 'check_user_role_and_suppress' ) );
 	}
 

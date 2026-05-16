@@ -524,7 +524,7 @@ class Techanum_Maintenance_Settings {
             </button>
         </div>
         <p class="description">
-            <?php esc_html_e( 'Enter your AI service API key. If left empty, a fallback key will be used.', 'techanum-maintenance' ); ?>
+            <?php esc_html_e( 'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.', 'techanum-maintenance' ); ?>
             <?php if ( $has_value ) : ?>
                 <br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
             <?php endif; ?>

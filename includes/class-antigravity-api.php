@@ -43,17 +43,26 @@ class Techanum_Antigravity_API {
 	private $cache_duration = HOUR_IN_SECONDS;
 
 	/**
-	 * Retrieve the API key from the wp-config.php constant.
+	 * Retrieve the API key from the WordPress option or wp-config.php constant.
 	 *
-	 * The site owner must define TECHANUM_ANTIGRAVITY_API_KEY
-	 * inside wp-config.php for the integration to work.
+	 * First tries to get the API key from the 'techanum_maintenance_api_key' option.
+	 * If not set or empty, falls back to the TECHANUM_ANTIGRAVITY_API_KEY constant
+	 * defined in wp-config.php.
 	 *
-	 * @return string|false The API key or false if not defined.
+	 * @return string|false The API key or false if not defined anywhere.
 	 */
 	private function get_api_key() {
+		// First, try to get the API key from WordPress settings option.
+		$api_key_option = get_option( 'techanum_maintenance_api_key', '' );
+		if ( ! empty( $api_key_option ) ) {
+			return trim( $api_key_option );
+		}
+
+		// Fallback to the wp-config.php constant.
 		if ( defined( 'TECHANUM_ANTIGRAVITY_API_KEY' ) && TECHANUM_ANTIGRAVITY_API_KEY ) {
 			return TECHANUM_ANTIGRAVITY_API_KEY;
 		}
+
 		return false;
 	}
 

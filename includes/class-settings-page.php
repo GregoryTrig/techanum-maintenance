@@ -112,16 +112,6 @@ class Techanum_Maintenance_Settings {
             )
         );
 
-        register_setting(
-            $this->option_group,
-            'techanum_maintenance_api_key',
-            array(
-                'type'              => 'string',
-                'sanitize_callback' => array( $this, 'sanitize_api_key' ),
-                'default'           => '',
-            )
-        );
-
         add_settings_section(
             'techanum_maintenance_page',
             __( 'Σελίδα Συντήρησης', 'techanum-maintenance' ),
@@ -174,21 +164,6 @@ class Techanum_Maintenance_Settings {
             array( $this, 'render_silent_roles_field' ),
             $this->page_slug,
             'techanum_admin_notices'
-        );
-
-        add_settings_section(
-            'techanum_api_settings',
-            __( 'API Settings', 'techanum-maintenance' ),
-            array( $this, 'render_api_section_description' ),
-            $this->page_slug
-        );
-
-        add_settings_field(
-            'techanum_maintenance_api_key',
-            __( 'API Key', 'techanum-maintenance' ),
-            array( $this, 'render_api_key_field' ),
-            $this->page_slug,
-            'techanum_api_settings'
         );
     }
 
@@ -479,83 +454,6 @@ class Techanum_Maintenance_Settings {
         );
 
         return array_values( $sanitized );
-    }
-
-    /**
-     * Render the API settings section description.
-     *
-     * @return void
-     */
-    public function render_api_section_description() {
-        echo '<p>' . esc_html__(
-            'Configure the Google Gemini API key for AI-generated maintenance messages.',
-            'techanum-maintenance'
-        ) . '</p>';
-    }
-
-    /**
-     * Render the API key field.
-     *
-     * @return void
-     */
-    public function render_api_key_field() {
-        $api_key = get_option( 'techanum_maintenance_api_key', '' );
-        $has_key = ! empty( $api_key );
-        ?>
-        <div>
-            <input
-                type="password"
-                id="techanum-maintenance-api-key"
-                name="techanum_maintenance_api_key"
-                value="<?php echo esc_attr( $api_key ); ?>"
-                class="regular-text"
-                placeholder="<?php esc_attr_e( 'Enter your Google Gemini API key', 'techanum-maintenance' ); ?>"
-            />
-            <button type="button" class="button" id="techanum-toggle-api-key" style="margin-left: 5px;">
-                <span id="techanum-toggle-api-key-text"><?php esc_html_e( 'Show', 'techanum-maintenance' ); ?></span>
-            </button>
-            <p class="description">
-                <?php esc_html_e( 'Enter your Google Gemini API key. If left empty, a fallback key will be used. Keep this key secure and never share it publicly.', 'techanum-maintenance' ); ?>
-            </p>
-            <?php if ( $has_key ) : ?>
-                <p style="color: #46b450; margin-top: 5px;">
-                    ✓ <?php esc_html_e( 'API key is configured.', 'techanum-maintenance' ); ?>
-                </p>
-            <?php endif; ?>
-        </div>
-        <script type="text/javascript">
-            ( function( $ ) {
-                var $apiKeyInput = $( '#techanum-maintenance-api-key' );
-                var $toggleButton = $( '#techanum-toggle-api-key' );
-                var $toggleText = $( '#techanum-toggle-api-key-text' );
-
-                $toggleButton.on( 'click', function( e ) {
-                    e.preventDefault();
-                    var inputType = $apiKeyInput.attr( 'type' );
-                    if ( inputType === 'password' ) {
-                        $apiKeyInput.attr( 'type', 'text' );
-                        $toggleText.text( '<?php esc_js( _e( 'Hide', 'techanum-maintenance' ) ); ?>' );
-                    } else {
-                        $apiKeyInput.attr( 'type', 'password' );
-                        $toggleText.text( '<?php esc_js( _e( 'Show', 'techanum-maintenance' ) ); ?>' );
-                    }
-                });
-            })( jQuery );
-        </script>
-        <?php
-    }
-
-    /**
-     * Sanitize the API key field.
-     *
-     * @param mixed $value Submitted value.
-     * @return string
-     */
-    public function sanitize_api_key( $value ) {
-        if ( is_string( $value ) ) {
-            return sanitize_text_field( trim( $value ) );
-        }
-        return '';
     }
 
     /**

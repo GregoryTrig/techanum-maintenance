@@ -106,10 +106,7 @@ class Techanum_Antigravity_API {
 	 * @return string|false The generated text or false on failure.
 	 */
 	private function call_gemini_api( $api_key ) {
-		$prompt = 'Γράψε ένα σύντομο, φιλικό μήνυμα στα ελληνικά που να ενημερώνει '
-				. 'ότι ο ιστότοπος είναι σε συντήρηση και θα επιστρέψει σύντομα. '
-				. 'Απάντησε μόνο με το μήνυμα, χωρίς εισαγωγικά ή επιπλέον σχόλια. '
-				. 'Μέγιστο 2 προτάσεις.';
+		$prompt = 'Write a short, friendly message in Greek informing that the website is under maintenance and will return soon. Reply only with the message, without quotes or extra comments. Maximum 2 sentences.';
 
 		$request_url = add_query_arg( 'key', $api_key, $this->api_url );
 

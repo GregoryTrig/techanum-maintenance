@@ -25,7 +25,7 @@ class Techanum_Maintenance_Mode {
      * Constructor.
      */
     public function __construct() {
-        // Προσθήκη του φίλτρου μόνο όταν είναι ενεργή η συντήρηση
+        // Add the filter only when maintenance mode is active.
         if ( $this->is_maintenance_active() ) {
             add_filter( 'template_include', array( $this, 'maintenance_template' ), 9999 );
         }
@@ -78,12 +78,12 @@ class Techanum_Maintenance_Mode {
      * @return string
      */
     public function maintenance_template( $template ) {
-        // Μην επηρεάζεις το backend
+        // Do not affect the admin backend.
         if ( is_admin() ) {
             return $template;
         }
 
-        // Επέτρεψε στους εξαιρούμενους χρήστες να βλέπουν το κανονικό site
+        // Allow excluded users to see the normal site.
         if ( $this->is_user_excluded() ) {
             return $template;
         }

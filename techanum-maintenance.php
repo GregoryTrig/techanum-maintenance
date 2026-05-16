@@ -14,22 +14,22 @@
  * @package TechanumMaintenance
  */
 
-// Αποτροπή άμεσης πρόσβασης
+// Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Φόρτωση της κλάσης συντήρησης
+// Load the maintenance mode class.
 if ( ! class_exists( 'Techanum_Maintenance_Mode' ) ) {
     require_once plugin_dir_path( __FILE__ ) . 'includes/class-maintenance-mode.php';
 }
 
-// Φόρτωση της κλάσης Antigravity API
+// Load the Antigravity API class.
 if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
     require_once plugin_dir_path( __FILE__ ) . 'includes/class-antigravity-api.php';
 }
 
-// Φόρτωση των κλάσεων admin (μόνο στο admin)
+// Load admin classes (only in the admin area).
 if ( is_admin() ) {
 	if ( ! class_exists( 'Techanum_Maintenance_Settings' ) ) {
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-settings-page.php';
@@ -42,11 +42,11 @@ if ( is_admin() ) {
 	new Techanum_Maintenance_Admin_Notices();
 }
 
-// Εκκίνηση του plugin
+// Initialise the plugin.
 $techanum_maintenance = new Techanum_Maintenance_Mode();
 
 /**
- * Ενεργοποίηση plugin - Προεπιλογές
+ * Plugin activation — set default options.
  */
 function techanum_maintenance_activate() {
     add_option( 'techanum_maintenance_active', false );
@@ -54,7 +54,7 @@ function techanum_maintenance_activate() {
 register_activation_hook( __FILE__, 'techanum_maintenance_activate' );
 
 /**
- * Απενεργοποίηση plugin - Καθάρισμα
+ * Plugin deactivation — clean up options.
  */
 function techanum_maintenance_deactivate() {
     delete_option( 'techanum_maintenance_active' );

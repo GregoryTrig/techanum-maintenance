@@ -112,9 +112,19 @@ class Techanum_Maintenance_Settings {
             )
         );
 
+        register_setting(
+            $this->option_group,
+            'techanum_maintenance_api_key',
+            array(
+                'type'              => 'string',
+                'sanitize_callback' => array( $this, 'sanitize_api_key' ),
+                'default'           => '',
+            )
+        );
+
         add_settings_section(
             'techanum_maintenance_page',
-            __( 'Σελίδα Συντήρησης', 'techanum-maintenance' ),
+            __( 'Maintenance Page', 'techanum-maintenance' ),
             array( $this, 'render_maintenance_section_description' ),
             $this->page_slug
         );
@@ -153,7 +163,7 @@ class Techanum_Maintenance_Settings {
 
         add_settings_section(
             'techanum_admin_notices',
-            __( 'Διαχείριση Ειδοποιήσεων', 'techanum-maintenance' ),
+            __( 'Admin Notices Management', 'techanum-maintenance' ),
             array( $this, 'render_notices_section_description' ),
             $this->page_slug
         );
@@ -164,6 +174,21 @@ class Techanum_Maintenance_Settings {
             array( $this, 'render_silent_roles_field' ),
             $this->page_slug,
             'techanum_admin_notices'
+        );
+
+        add_settings_section(
+            'techanum_api_settings',
+            __( 'API Settings', 'techanum-maintenance' ),
+            array( $this, 'render_api_section_description' ),
+            $this->page_slug
+        );
+
+        add_settings_field(
+            'techanum_maintenance_api_key',
+            __( 'API Key', 'techanum-maintenance' ),
+            array( $this, 'render_api_key_field' ),
+            $this->page_slug,
+            'techanum_api_settings'
         );
     }
 
@@ -214,6 +239,13 @@ class Techanum_Maintenance_Settings {
                     $( '#techanum-maintenance-logo' ).val( '' );
                     $( '#techanum-logo-preview' ).hide();
                     $( this ).hide();
+                });
+
+                $( '#techanum-toggle-api-key' ).on( 'click', function() {
+                    var input = $( '#techanum-maintenance-api-key' );
+                    var isPassword = input.attr( 'type' ) === 'password';
+                    input.attr( 'type', isPassword ? 'text' : 'password' );
+                    $( this ).text( isPassword ? '" . esc_js( __( 'Hide', 'techanum-maintenance' ) ) . "' : '" . esc_js( __( 'Show', 'techanum-maintenance' ) ) . "' );
                 });
             });
         ";
@@ -454,6 +486,62 @@ class Techanum_Maintenance_Settings {
         );
 
         return array_values( $sanitized );
+    }
+
+    /**
+     * Render the API settings section description.
+     *
+     * @return void
+     */
+    public function render_api_section_description() {
+        echo '<p>' . esc_html__(
+            'Configure the Google Gemini API key used to generate dynamic maintenance messages. If left empty, the plugin will look for the TECHANUM_ANTIGRAVITY_API_KEY constant defined in wp-config.php.',
+            'techanum-maintenance'
+        ) . '</p>';
+    }
+
+    /**
+     * Render the API key password field.
+     *
+     * @return void
+     */
+    public function render_api_key_field() {
+        $api_key    = get_option( 'techanum_maintenance_api_key', '' );
+        $has_value  = ! empty( $api_key );
+        ?>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <input
+                type="password"
+                id="techanum-maintenance-api-key"
+                name="techanum_maintenance_api_key"
+                value="<?php echo esc_attr( $api_key ); ?>"
+                class="regular-text"
+                autocomplete="new-password"
+                placeholder="<?php echo $has_value ? esc_attr( '••••••••' ) : esc_attr__( 'Enter your API key', 'techanum-maintenance' ); ?>"
+            />
+            <button type="button" class="button" id="techanum-toggle-api-key">
+                <?php esc_html_e( 'Show', 'techanum-maintenance' ); ?>
+            </button>
+        </div>
+        <p class="description">
+            <?php esc_html_e( 'Enter your Google Gemini API key. If left empty, a default key will be used.', 'techanum-maintenance' ); ?>
+            <?php if ( $has_value ) : ?>
+                <br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
+            <?php endif; ?>
+        </p>
+        <?php
+    }
+
+    /**
+     * Sanitize the API key option.
+     *
+     * Trims whitespace and applies sanitize_text_field.
+     *
+     * @param mixed $value Submitted value.
+     * @return string
+     */
+    public function sanitize_api_key( $value ) {
+        return trim( sanitize_text_field( (string) $value ) );
     }
 
     /**

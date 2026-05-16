@@ -10,17 +10,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Οι headers στέλνονται ήδη από την κλάση, αλλά για σιγουριά.
+// Headers are already sent by the class, but set them here as a safety measure.
 if ( ! headers_sent() ) {
 	status_header( 503 );
 	header( 'Retry-After: 3600' );
 }
 
-// Λήψη custom ρυθμίσεων.
+// Retrieve custom settings.
 $custom_logo    = get_option( 'techanum_maintenance_logo', '' );
 $custom_message = get_option( 'techanum_maintenance_custom_message', '' );
 
-// Αν υπάρχει custom μήνυμα, αυτό έχει προτεραιότητα· αλλιώς ζητάμε από το API.
+// If a custom message is set, it takes priority; otherwise request one from the API.
 if ( ! empty( $custom_message ) ) {
 	$maintenance_message = $custom_message;
 } else {
@@ -131,4 +131,4 @@ if ( ! empty( $custom_message ) ) {
 		</p>
 	</div>
 </body>
-</html>
+</html>

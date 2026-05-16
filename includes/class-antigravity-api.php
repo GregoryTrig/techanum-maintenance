@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Techanum_Antigravity_API
  *
  * Connects to the Gemini API and returns a friendly,
- * AI-generated maintenance message in Greek.
+ * AI-generated maintenance message.
  */
 class Techanum_Antigravity_API {
 
@@ -75,23 +75,23 @@ class Techanum_Antigravity_API {
 	 * @return string The AI-generated message, or a fallback if the API is unavailable.
 	 */
 	public function get_dynamic_message() {
-		// Πρώτα ελέγχουμε αν υπάρχει cached μήνυμα.
+		// First, check whether a cached message exists.
 		$cached_message = get_transient( $this->cache_key );
 		if ( false !== $cached_message ) {
 			return $cached_message;
 		}
 
-		// Αν δεν υπάρχει API key, επιστρέφουμε fallback.
+		// If no API key is available, return the fallback message.
 		$api_key = $this->get_api_key();
 		if ( ! $api_key ) {
 			return $this->get_fallback_message();
 		}
 
-		// Κλήση στο Gemini API.
+		// Call the Gemini API.
 		$message = $this->call_gemini_api( $api_key );
 
 		if ( $message ) {
-			// Αποθήκευση στο transient cache για 1 ώρα.
+			// Store the result in the transient cache for 1 hour.
 			set_transient( $this->cache_key, $message, $this->cache_duration );
 			return $message;
 		}
@@ -139,13 +139,13 @@ class Techanum_Antigravity_API {
 			)
 		);
 
-		// Έλεγχος σφαλμάτων δικτύου.
+		// Check for network errors.
 		if ( is_wp_error( $response ) ) {
 			error_log( 'Techanum Maintenance - API Error: ' . $response->get_error_message() );
 			return false;
 		}
 
-		// Έλεγχος HTTP status code.
+		// Check the HTTP status code.
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $response_code ) {
 			error_log( 'Techanum Maintenance - API HTTP Error: ' . $response_code );
@@ -155,7 +155,7 @@ class Techanum_Antigravity_API {
 		$response_body = wp_remote_retrieve_body( $response );
 		$data          = json_decode( $response_body, true );
 
-		// Εξαγωγή κειμένου από την απάντηση του Gemini.
+		// Extract the text from the Gemini API response.
 		if (
 			isset( $data['candidates'][0]['content']['parts'][0]['text'] )
 			&& ! empty( $data['candidates'][0]['content']['parts'][0]['text'] )

@@ -495,7 +495,7 @@ class Techanum_Maintenance_Settings {
      */
     public function render_api_section_description() {
         echo '<p>' . esc_html__(
-            'Configure the Google Gemini API key used to generate dynamic maintenance messages. If left empty, the plugin will look for the TECHANUM_ANTIGRAVITY_API_KEY constant defined in wp-config.php.',
+            'Enter the API key for the AI service that generates dynamic maintenance messages. If left empty, the plugin will look for the TECHANUM_ANTIGRAVITY_API_KEY constant defined in your wp-config.php file.',
             'techanum-maintenance'
         ) . '</p>';
     }
@@ -524,7 +524,7 @@ class Techanum_Maintenance_Settings {
             </button>
         </div>
         <p class="description">
-            <?php esc_html_e( 'Enter your Google Gemini API key. If left empty, a default key will be used.', 'techanum-maintenance' ); ?>
+            <?php esc_html_e( 'Enter your AI service API key. If left empty, a fallback key will be used.', 'techanum-maintenance' ); ?>
             <?php if ( $has_value ) : ?>
                 <br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
             <?php endif; ?>

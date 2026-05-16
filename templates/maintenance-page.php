@@ -24,16 +24,23 @@ $custom_message = get_option( 'techanum_maintenance_custom_message', '' );
 if ( ! empty( $custom_message ) ) {
 	$maintenance_message = $custom_message;
 } else {
+	// Guard: ensure the API class is available before instantiating it.
+	if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
+		require_once dirname( __DIR__ ) . '/includes/class-antigravity-api.php';
+	}
 	$antigravity_api     = new Techanum_Antigravity_API();
 	$maintenance_message = $antigravity_api->get_dynamic_message();
 }
+
+/* translators: %s: site name */
+$page_title = sprintf( __( 'Under Maintenance – %s', 'techanum-maintenance' ), get_bloginfo( 'name' ) );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo esc_html__( 'Under Maintenance - ', 'techanum-maintenance' ) . esc_html( get_bloginfo( 'name' ) ); ?></title>
+	<title><?php echo esc_html( $page_title ); ?></title>
 	<style>
 		* {
 			margin: 0;
@@ -121,7 +128,7 @@ if ( ! empty( $custom_message ) ) {
 			<div class="maintenance-icon">🛠️</div>
 		<?php endif; ?>
 		<h1 class="maintenance-title">
-			<?php echo esc_html__( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
+			<?php esc_html_e( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
 		</h1>
 		<p class="maintenance-message">
 			<?php echo esc_html( $maintenance_message ); ?>

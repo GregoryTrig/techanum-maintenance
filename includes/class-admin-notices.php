@@ -50,7 +50,7 @@ class Techanum_Maintenance_Admin_Notices {
 
 		// Get the current user's roles.
 		$user = wp_get_current_user();
-		if ( ! $user ) {
+		if ( ! $user instanceof WP_User || 0 === $user->ID ) {
 			return;
 		}
 

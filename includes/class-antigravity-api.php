@@ -45,14 +45,14 @@ class Techanum_Antigravity_API {
 	/**
 	 * Retrieve the API key from the wp-config.php constant.
 	 *
-	 * The site owner must define TEHANUM_ANTIGRAVITY_API_KEY
+	 * The site owner must define TECHANUM_ANTIGRAVITY_API_KEY
 	 * inside wp-config.php for the integration to work.
 	 *
 	 * @return string|false The API key or false if not defined.
 	 */
 	private function get_api_key() {
-		if ( defined( 'TEHANUM_ANTIGRAVITY_API_KEY' ) && TEHANUM_ANTIGRAVITY_API_KEY ) {
-			return TEHANUM_ANTIGRAVITY_API_KEY;
+		if ( defined( 'TECHANUM_ANTIGRAVITY_API_KEY' ) && TECHANUM_ANTIGRAVITY_API_KEY ) {
+			return TECHANUM_ANTIGRAVITY_API_KEY;
 		}
 		return false;
 	}

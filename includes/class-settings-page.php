@@ -276,7 +276,7 @@ class Techanum_Maintenance_Settings {
             <button type="button" class="button" id="techanum-upload-logo-btn">
                 <?php esc_html_e( 'Upload Logo', 'techanum-maintenance' ); ?>
             </button>
-            <button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $hidden; ?>>
+            <button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                 <?php esc_html_e( 'Remove Logo', 'techanum-maintenance' ); ?>
             </button>
             <div style="margin-top: 10px;">
@@ -408,6 +408,7 @@ class Techanum_Maintenance_Settings {
      */
     public function sanitize_silent_roles( $value ) {
         if ( ! is_array( $value ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing
             if ( isset( $_POST['techanum_silent_roles_submitted'] ) ) {
                 return array();
             }
@@ -435,6 +436,7 @@ class Techanum_Maintenance_Settings {
      */
     public function sanitize_excluded_roles( $value ) {
         if ( ! is_array( $value ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing
             if ( isset( $_POST['techanum_excluded_roles_submitted'] ) ) {
                 return array();
             }

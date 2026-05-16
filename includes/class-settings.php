@@ -560,7 +560,26 @@ class Techanum_Settings {
 				submit_button( __( 'Save Settings', 'techanum-maintenance' ) );
 				?>
 			</form>
+			<?php $this->render_pro_teaser(); ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the Pro teaser box below the settings form.
+	 *
+	 * @return void
+	 */
+	public function render_pro_teaser() {
+		echo '<div style="margin-top: 24px; max-width: 600px; padding: 18px; background: #f5f7fa; border-left: 4px solid #0073aa; border-radius: 6px;">';
+		echo '<h2 style="margin-top: 0; margin-bottom: 12px; font-size: 1.3em;">' . esc_html__( 'Techanum Maintenance Pro', 'techanum-maintenance' ) . '</h2>';
+		echo '<p style="margin: 0 0 12px;">' . esc_html__( 'Upgrade to the Pro version and unlock these premium features:', 'techanum-maintenance' ) . '</p>';
+		echo '<ul style="margin: 0 0 16px; padding-left: 20px;">';
+		echo '<li>' . esc_html__( 'Advanced scheduling', 'techanum-maintenance' ) . '</li>';
+		echo '<li>' . esc_html__( 'Countdown timer', 'techanum-maintenance' ) . '</li>';
+		echo '<li>' . esc_html__( 'Maintenance page templates', 'techanum-maintenance' ) . '</li>';
+		echo '</ul>';
+		echo '<a href="https://techanum.com/maintenance/" target="_blank" rel="noopener noreferrer" class="button button-primary">' . esc_html__( 'Learn More', 'techanum-maintenance' ) . '</a>';
+		echo '</div>';
 	}
 }

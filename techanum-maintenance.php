@@ -31,10 +31,10 @@ if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
 
 // Φόρτωση των κλάσεων admin (μόνο στο admin)
 if ( is_admin() ) {
-	if ( ! class_exists( 'Techanum_Settings' ) ) {
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-settings.php';
+	if ( ! class_exists( 'Techanum_Maintenance_Settings' ) ) {
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-settings-page.php';
 	}
-	new Techanum_Settings();
+	new Techanum_Maintenance_Settings();
 
 	if ( ! class_exists( 'Techanum_Maintenance_Admin_Notices' ) ) {
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-admin-notices.php';

@@ -495,7 +495,7 @@ class Techanum_Maintenance_Settings {
      */
     public function render_api_section_description() {
         echo '<p>' . esc_html__(
-            'Enter the API key for the AI service that generates dynamic maintenance messages. If left empty, the plugin will look for the TECHANUM_ANTIGRAVITY_API_KEY constant defined in your wp-config.php file.',
+            'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.',
             'techanum-maintenance'
         ) . '</p>';
     }

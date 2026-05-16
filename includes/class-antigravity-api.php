@@ -170,7 +170,7 @@ class Techanum_Antigravity_API {
 	 */
 	private function get_fallback_message() {
 		return __(
-			'Πραγματοποιούμε προγραμματισμένη συντήρηση. Θα επιστρέψουμε σύντομα!',
+			'We are performing scheduled maintenance. We will be back soon!',
 			'techanum-maintenance'
 		);
 	}

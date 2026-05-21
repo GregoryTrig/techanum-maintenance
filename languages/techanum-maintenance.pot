@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Techanum Maintenance 1.0.0\n"
 "Report-Msgid-Bugs-To: https://techanum.com/\n"
-"POT-Creation-Date: 2026-05-16T10:33:00+03:00\n"
+"POT-Creation-Date: 2026-05-21T16:15:00+03:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,6 +19,9 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: techanum-maintenance.php
+#: includes/class-settings-page.php:51
+#: includes/class-settings-page.php:52
+#: includes/class-settings-page.php:586
 msgid "Techanum Maintenance"
 msgstr ""
 
@@ -41,140 +44,134 @@ msgstr ""
 msgid "We are performing scheduled maintenance. We will be back soon!"
 msgstr ""
 
-#: includes/class-settings-page.php:51
-#: includes/class-settings-page.php:52
-#: includes/class-settings-page.php:569
-msgid "Techanum Maintenance"
-msgstr ""
-
-#: includes/class-settings-page.php:127
+#: includes/class-settings-page.php:128
 msgid "Maintenance Page"
 msgstr ""
 
-#: includes/class-settings-page.php:134
+#: includes/class-settings-page.php:135
 msgid "Enable Maintenance Page"
 msgstr ""
 
-#: includes/class-settings-page.php:142
+#: includes/class-settings-page.php:143
 msgid "Maintenance Logo"
 msgstr ""
 
-#: includes/class-settings-page.php:150
+#: includes/class-settings-page.php:151
 msgid "Custom Maintenance Message"
 msgstr ""
 
-#: includes/class-settings-page.php:158
+#: includes/class-settings-page.php:159
 msgid "Excluded Roles"
 msgstr ""
 
-#: includes/class-settings-page.php:166
+#: includes/class-settings-page.php:168
 msgid "Admin Notices Management"
 msgstr ""
 
-#: includes/class-settings-page.php:173
+#: includes/class-settings-page.php:175
 msgid "Silent Roles"
 msgstr ""
 
-#: includes/class-settings-page.php:181
+#: includes/class-settings-page.php:184
 msgid "API Settings"
 msgstr ""
 
-#: includes/class-settings-page.php:188
+#: includes/class-settings-page.php:191
 msgid "API Key"
 msgstr ""
 
-#: includes/class-settings-page.php:221
+#: includes/class-settings-page.php:224
 msgid "Select Logo"
 msgstr ""
 
-#: includes/class-settings-page.php:222
+#: includes/class-settings-page.php:225
 msgid "Use this image"
 msgstr ""
 
-#: includes/class-settings-page.php:248
+#: includes/class-settings-page.php:251
 msgid "Hide"
 msgstr ""
 
-#: includes/class-settings-page.php:248
-#: includes/class-settings-page.php:523
+#: includes/class-settings-page.php:251
+#: includes/class-settings-page.php:540
 msgid "Show"
 msgstr ""
 
-#: includes/class-settings-page.php:262
+#: includes/class-settings-page.php:265
 msgid "Configure the maintenance page behavior, logo and message that visitors see while the site is in maintenance mode."
 msgstr ""
 
-#: includes/class-settings-page.php:284
+#: includes/class-settings-page.php:287
 msgid "Enable maintenance page"
 msgstr ""
 
-#: includes/class-settings-page.php:287
+#: includes/class-settings-page.php:290
 msgid "When enabled, visitors will see the maintenance page instead of the normal site."
 msgstr ""
 
-#: includes/class-settings-page.php:309
+#: includes/class-settings-page.php:314
 msgid "Upload Logo"
 msgstr ""
 
-#: includes/class-settings-page.php:312
+#: includes/class-settings-page.php:317
 msgid "Remove Logo"
 msgstr ""
 
-#: includes/class-settings-page.php:318
+#: includes/class-settings-page.php:323
 msgid "Logo preview"
 msgstr ""
 
-#: includes/class-settings-page.php:323
+#: includes/class-settings-page.php:328
 msgid "Upload a logo to display on the maintenance page instead of the default icon."
 msgstr ""
 
-#: includes/class-settings-page.php:343
+#: includes/class-settings-page.php:348
 msgid "Leave empty to use the AI-generated message"
 msgstr ""
 
-#: includes/class-settings-page.php:346
+#: includes/class-settings-page.php:351
 msgid "If set, this message will override the AI-generated maintenance message."
 msgstr ""
 
-#: includes/class-settings-page.php:363
-#: includes/class-settings-page.php:411
+#: includes/class-settings-page.php:374
+#: includes/class-settings-page.php:428
 msgid "No roles available to configure."
 msgstr ""
 
-#: includes/class-settings-page.php:382
+#: includes/class-settings-page.php:393
 msgid "Users with the selected roles will bypass the maintenance page and see the normal site."
 msgstr ""
 
-#: includes/class-settings-page.php:393
+#: includes/class-settings-page.php:404
 msgid "Choose which roles should not see WordPress admin notices. Administrators always retain notice visibility."
 msgstr ""
 
-#: includes/class-settings-page.php:430
+#: includes/class-settings-page.php:447
 msgid "Users with the selected roles will not see admin notices in the dashboard."
 msgstr ""
 
-#: includes/class-settings-page.php:497
-#: includes/class-settings-page.php:527
+#: includes/class-settings-page.php:514
+#: includes/class-settings-page.php:544
 msgid "Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used."
 msgstr ""
 
-#: includes/class-settings-page.php:520
+#: includes/class-settings-page.php:537
 msgid "Enter your API key"
 msgstr ""
 
-#: includes/class-settings-page.php:529
+#: includes/class-settings-page.php:546
 msgid "An API key is currently saved."
 msgstr ""
 
-#: includes/class-settings-page.php:563
+#: includes/class-settings-page.php:580
 msgid "Save Settings"
 msgstr ""
 
-#: includes/class-settings-page.php:572
+#: includes/class-settings-page.php:589
 msgid "The Pro version offers advanced scheduling, a countdown timer, and maintenance page templates."
 msgstr ""
 
-#: includes/class-settings-page.php:575
+#: includes/class-settings-page.php:592
 msgid "Learn more"
 msgstr ""
 
@@ -183,6 +180,6 @@ msgstr ""
 msgid "Under Maintenance \u2013 %s"
 msgstr ""
 
-#: templates/maintenance-page.php:124
+#: templates/maintenance-page.php:131
 msgid "We are in scheduled maintenance"
 msgstr ""

@@ -3,7 +3,7 @@
  * Plugin Name:       Techanum Maintenance
  * Plugin URI:        https://techanum.com/maintenance/
  * Description:       Replace the default WordPress maintenance page with a friendly, customizable under-construction page. Hide admin notices from non-admin users.
- * Version:           1.0
+ * Version:           1.0.0
  * Author:            Gregory Triglidis
  * Author URI:        https://techanum.com/
  * License:           GPL-3.0-or-later
@@ -72,16 +72,27 @@ add_action( 'plugins_loaded', 'techanum_maintenance_init' );
 
 /**
  * Plugin activation — set default options.
+ *
+ * Uses add_option() so existing values are never overwritten on re-activation.
  */
 function techanum_maintenance_activate() {
-	add_option( 'techanum_maintenance_active', false );
+	add_option( 'techanum_maintenance_active', 0 );
+	add_option( 'techanum_maintenance_logo', '' );
+	add_option( 'techanum_maintenance_custom_message', '' );
+	add_option( 'techanum_excluded_roles', array() );
+	add_option( 'techanum_silent_roles', array() );
+	add_option( 'techanum_maintenance_api_key', '' );
 }
 register_activation_hook( __FILE__, 'techanum_maintenance_activate' );
 
 /**
- * Plugin deactivation — clean up options.
+ * Plugin deactivation — ensure maintenance mode is turned off.
+ *
+ * We only disable maintenance mode on deactivation; we do NOT delete
+ * all options so the user's configuration is preserved if they
+ * re-activate the plugin later.
  */
 function techanum_maintenance_deactivate() {
-	delete_option( 'techanum_maintenance_active' );
+	update_option( 'techanum_maintenance_active', 0 );
 }
 register_deactivation_hook( __FILE__, 'techanum_maintenance_deactivate' );

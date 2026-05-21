@@ -10,7 +10,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 /**
@@ -18,564 +18,581 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Techanum_Maintenance_Settings {
 
-    /**
-     * Settings page slug.
-     *
-     * @var string
-     */
-    private $page_slug = 'techanum-maintenance';
+	/**
+	 * Settings page slug.
+	 *
+	 * @var string
+	 */
+	private $page_slug = 'techanum-maintenance';
 
-    /**
-     * Option group used by the Settings API.
-     *
-     * @var string
-     */
-    private $option_group = 'techanum_maintenance_options';
+	/**
+	 * Option group used by the Settings API.
+	 *
+	 * @var string
+	 */
+	private $option_group = 'techanum_maintenance_options';
 
-    /**
-     * Constructor.
-     */
-    public function __construct() {
-        add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
-        add_action( 'admin_init', array( $this, 'register_settings' ) );
-        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_uploader' ) );
-    }
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_uploader' ) );
+	}
 
-    /**
-     * Add the settings page under Settings.
-     *
-     * @return void
-     */
-    public function add_settings_page() {
-        add_options_page(
-            __( 'Techanum Maintenance', 'techanum-maintenance' ),
-            __( 'Techanum Maintenance', 'techanum-maintenance' ),
-            'manage_options',
-            $this->page_slug,
-            array( $this, 'render_settings_page' )
-        );
-    }
+	/**
+	 * Add the settings page under Settings.
+	 *
+	 * @return void
+	 */
+	public function add_settings_page() {
+		add_options_page(
+			__( 'Techanum Maintenance', 'techanum-maintenance' ),
+			__( 'Techanum Maintenance', 'techanum-maintenance' ),
+			'manage_options',
+			$this->page_slug,
+			array( $this, 'render_settings_page' )
+		);
+	}
 
-    /**
-     * Register settings, sections and fields.
-     *
-     * @return void
-     */
-    public function register_settings() {
-        register_setting(
-            $this->option_group,
-            'techanum_maintenance_active',
-            array(
-                'type'              => 'boolean',
-                'sanitize_callback' => 'rest_sanitize_boolean',
-                'default'           => false,
-            )
-        );
+	/**
+	 * Register settings, sections and fields.
+	 *
+	 * @return void
+	 */
+	public function register_settings() {
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_active',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			)
+		);
 
-        register_setting(
-            $this->option_group,
-            'techanum_maintenance_logo',
-            array(
-                'type'              => 'string',
-                'sanitize_callback' => 'esc_url_raw',
-                'default'           => '',
-            )
-        );
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_logo',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+				'default'           => '',
+			)
+		);
 
-        register_setting(
-            $this->option_group,
-            'techanum_maintenance_custom_message',
-            array(
-                'type'              => 'string',
-                'sanitize_callback' => 'sanitize_textarea_field',
-                'default'           => '',
-            )
-        );
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_custom_message',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'default'           => '',
+			)
+		);
 
-        register_setting(
-            $this->option_group,
-            'techanum_excluded_roles',
-            array(
-                'type'              => 'array',
-                'sanitize_callback' => array( $this, 'sanitize_excluded_roles' ),
-                'default'           => array(),
-            )
-        );
+		register_setting(
+			$this->option_group,
+			'techanum_excluded_roles',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_excluded_roles' ),
+				'default'           => array(),
+			)
+		);
 
-        register_setting(
-            $this->option_group,
-            'techanum_silent_roles',
-            array(
-                'type'              => 'array',
-                'sanitize_callback' => array( $this, 'sanitize_silent_roles' ),
-                'default'           => array(),
-            )
-        );
+		register_setting(
+			$this->option_group,
+			'techanum_silent_roles',
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'sanitize_silent_roles' ),
+				'default'           => array(),
+			)
+		);
 
-        register_setting(
-            $this->option_group,
-            'techanum_maintenance_api_key',
-            array(
-                'type'              => 'string',
-                'sanitize_callback' => array( $this, 'sanitize_api_key' ),
-                'default'           => '',
-            )
-        );
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_api_key',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_api_key' ),
+				'default'           => '',
+			)
+		);
 
-        add_settings_section(
-            'techanum_maintenance_page',
-            __( 'Maintenance Page', 'techanum-maintenance' ),
-            array( $this, 'render_maintenance_section_description' ),
-            $this->page_slug
-        );
+		// ── Section: Maintenance Page ──────────────────────────────────────────
+		add_settings_section(
+			'techanum_maintenance_page',
+			__( 'Maintenance Page', 'techanum-maintenance' ),
+			array( $this, 'render_maintenance_section_description' ),
+			$this->page_slug
+		);
 
-        add_settings_field(
-            'techanum_maintenance_active',
-            __( 'Enable Maintenance Page', 'techanum-maintenance' ),
-            array( $this, 'render_active_field' ),
-            $this->page_slug,
-            'techanum_maintenance_page'
-        );
+		add_settings_field(
+			'techanum_maintenance_active',
+			__( 'Enable Maintenance Page', 'techanum-maintenance' ),
+			array( $this, 'render_active_field' ),
+			$this->page_slug,
+			'techanum_maintenance_page'
+		);
 
-        add_settings_field(
-            'techanum_maintenance_logo',
-            __( 'Maintenance Logo', 'techanum-maintenance' ),
-            array( $this, 'render_logo_field' ),
-            $this->page_slug,
-            'techanum_maintenance_page'
-        );
+		add_settings_field(
+			'techanum_maintenance_logo',
+			__( 'Maintenance Logo', 'techanum-maintenance' ),
+			array( $this, 'render_logo_field' ),
+			$this->page_slug,
+			'techanum_maintenance_page'
+		);
 
-        add_settings_field(
-            'techanum_maintenance_custom_message',
-            __( 'Custom Maintenance Message', 'techanum-maintenance' ),
-            array( $this, 'render_message_field' ),
-            $this->page_slug,
-            'techanum_maintenance_page'
-        );
+		add_settings_field(
+			'techanum_maintenance_custom_message',
+			__( 'Custom Maintenance Message', 'techanum-maintenance' ),
+			array( $this, 'render_message_field' ),
+			$this->page_slug,
+			'techanum_maintenance_page'
+		);
 
-        add_settings_field(
-            'techanum_excluded_roles',
-            __( 'Excluded Roles', 'techanum-maintenance' ),
-            array( $this, 'render_excluded_roles_field' ),
-            $this->page_slug,
-            'techanum_maintenance_page'
-        );
+		add_settings_field(
+			'techanum_excluded_roles',
+			__( 'Excluded Roles', 'techanum-maintenance' ),
+			array( $this, 'render_excluded_roles_field' ),
+			$this->page_slug,
+			'techanum_maintenance_page'
+		);
 
-        add_settings_section(
-            'techanum_admin_notices',
-            __( 'Admin Notices Management', 'techanum-maintenance' ),
-            array( $this, 'render_notices_section_description' ),
-            $this->page_slug
-        );
+		// ── Section: Admin Notices ─────────────────────────────────────────────
+		add_settings_section(
+			'techanum_admin_notices',
+			__( 'Admin Notices Management', 'techanum-maintenance' ),
+			array( $this, 'render_notices_section_description' ),
+			$this->page_slug
+		);
 
-        add_settings_field(
-            'techanum_silent_roles',
-            __( 'Silent Roles', 'techanum-maintenance' ),
-            array( $this, 'render_silent_roles_field' ),
-            $this->page_slug,
-            'techanum_admin_notices'
-        );
+		add_settings_field(
+			'techanum_silent_roles',
+			__( 'Silent Roles', 'techanum-maintenance' ),
+			array( $this, 'render_silent_roles_field' ),
+			$this->page_slug,
+			'techanum_admin_notices'
+		);
 
-        add_settings_section(
-            'techanum_api_settings',
-            __( 'API Settings', 'techanum-maintenance' ),
-            array( $this, 'render_api_section_description' ),
-            $this->page_slug
-        );
+		// ── Section: API Settings ──────────────────────────────────────────────
+		add_settings_section(
+			'techanum_api_settings',
+			__( 'API Settings', 'techanum-maintenance' ),
+			array( $this, 'render_api_section_description' ),
+			$this->page_slug
+		);
 
-        add_settings_field(
-            'techanum_maintenance_api_key',
-            __( 'API Key', 'techanum-maintenance' ),
-            array( $this, 'render_api_key_field' ),
-            $this->page_slug,
-            'techanum_api_settings'
-        );
-    }
+		add_settings_field(
+			'techanum_maintenance_api_key',
+			__( 'API Key', 'techanum-maintenance' ),
+			array( $this, 'render_api_key_field' ),
+			$this->page_slug,
+			'techanum_api_settings'
+		);
+	}
 
-    /**
-     * Enqueue the WordPress media uploader on this settings page.
-     *
-     * @param string $hook_suffix Current admin page hook suffix.
-     * @return void
-     */
-    public function enqueue_media_uploader( $hook_suffix ) {
-        if ( 'settings_page_' . $this->page_slug !== $hook_suffix ) {
-            return;
-        }
+	/**
+	 * Enqueue the WordPress media uploader on this settings page.
+	 *
+	 * @param string $hook_suffix Current admin page hook suffix.
+	 * @return void
+	 */
+	public function enqueue_media_uploader( $hook_suffix ) {
+		if ( 'settings_page_' . $this->page_slug !== $hook_suffix ) {
+			return;
+		}
 
-        wp_enqueue_media();
+		wp_enqueue_media();
 
-        $inline_js = "
-            jQuery( document ).ready( function( $ ) {
-                var mediaUploader;
+		$inline_js = "
+			jQuery( document ).ready( function( $ ) {
+				var mediaUploader;
 
-                $( '#techanum-upload-logo-btn' ).on( 'click', function( e ) {
-                    e.preventDefault();
+				$( '#techanum-upload-logo-btn' ).on( 'click', function( e ) {
+					e.preventDefault();
 
-                    if ( mediaUploader ) {
-                        mediaUploader.open();
-                        return;
-                    }
+					if ( mediaUploader ) {
+						mediaUploader.open();
+						return;
+					}
 
-                    mediaUploader = wp.media({
-                        title:    '" . esc_js( __( 'Select Logo', 'techanum-maintenance' ) ) . "',
-                        button:   { text: '" . esc_js( __( 'Use this image', 'techanum-maintenance' ) ) . "' },
-                        multiple: false,
-                        library:  { type: 'image' }
-                    });
+					mediaUploader = wp.media({
+						title:    '" . esc_js( __( 'Select Logo', 'techanum-maintenance' ) ) . "',
+						button:   { text: '" . esc_js( __( 'Use this image', 'techanum-maintenance' ) ) . "' },
+						multiple: false,
+						library:  { type: 'image' }
+					});
 
-                    mediaUploader.on( 'select', function() {
-                        var attachment = mediaUploader.state().get( 'selection' ).first().toJSON();
-                        $( '#techanum-maintenance-logo' ).val( attachment.url );
-                        $( '#techanum-logo-preview' ).attr( 'src', attachment.url ).show();
-                        $( '#techanum-remove-logo-btn' ).show();
-                    });
+					mediaUploader.on( 'select', function() {
+						var attachment = mediaUploader.state().get( 'selection' ).first().toJSON();
+						$( '#techanum-maintenance-logo' ).val( attachment.url );
+						$( '#techanum-logo-preview' ).attr( 'src', attachment.url ).show();
+						$( '#techanum-remove-logo-btn' ).show();
+					});
 
-                    mediaUploader.open();
-                });
+					mediaUploader.open();
+				});
 
-                $( '#techanum-remove-logo-btn' ).on( 'click', function( e ) {
-                    e.preventDefault();
-                    $( '#techanum-maintenance-logo' ).val( '' );
-                    $( '#techanum-logo-preview' ).hide();
-                    $( this ).hide();
-                });
+				$( '#techanum-remove-logo-btn' ).on( 'click', function( e ) {
+					e.preventDefault();
+					$( '#techanum-maintenance-logo' ).val( '' );
+					$( '#techanum-logo-preview' ).hide();
+					$( this ).hide();
+				});
 
-                $( '#techanum-toggle-api-key' ).on( 'click', function() {
-                    var input = $( '#techanum-maintenance-api-key' );
-                    var isPassword = input.attr( 'type' ) === 'password';
-                    input.attr( 'type', isPassword ? 'text' : 'password' );
-                    $( this ).text( isPassword ? '" . esc_js( __( 'Hide', 'techanum-maintenance' ) ) . "' : '" . esc_js( __( 'Show', 'techanum-maintenance' ) ) . "' );
-                });
-            });
-        ";
+				$( '#techanum-toggle-api-key' ).on( 'click', function() {
+					var input = $( '#techanum-maintenance-api-key' );
+					var isPassword = input.attr( 'type' ) === 'password';
+					input.attr( 'type', isPassword ? 'text' : 'password' );
+					$( this ).text( isPassword ? '" . esc_js( __( 'Hide', 'techanum-maintenance' ) ) . "' : '" . esc_js( __( 'Show', 'techanum-maintenance' ) ) . "' );
+				});
+			});
+		";
 
-        wp_add_inline_script( 'jquery', $inline_js );
-    }
+		wp_add_inline_script( 'jquery', $inline_js );
+	}
 
-    /**
-     * Render the maintenance section description.
-     *
-     * @return void
-     */
-    public function render_maintenance_section_description() {
-        echo '<p>' . esc_html__(
-            'Configure the maintenance page behavior, logo and message that visitors see while the site is in maintenance mode.',
-            'techanum-maintenance'
-        ) . '</p>';
-    }
+	/**
+	 * Render the maintenance section description.
+	 *
+	 * @return void
+	 */
+	public function render_maintenance_section_description() {
+		echo '<p>' . esc_html__(
+			'Configure the maintenance page behavior, logo and message that visitors see while the site is in maintenance mode.',
+			'techanum-maintenance'
+		) . '</p>';
+	}
 
-    /**
-     * Render the active checkbox field.
-     *
-     * @return void
-     */
-    public function render_active_field() {
-        $is_active = (bool) get_option( 'techanum_maintenance_active', false );
-        ?>
-        <label>
-            <input
-                type="checkbox"
-                id="techanum-maintenance-active"
-                name="techanum_maintenance_active"
-                value="1"
-                <?php checked( $is_active ); ?>
-            />
-            <?php esc_html_e( 'Enable maintenance page', 'techanum-maintenance' ); ?>
-        </label>
-        <p class="description">
-            <?php esc_html_e( 'When enabled, visitors will see the maintenance page instead of the normal site.', 'techanum-maintenance' ); ?>
-        </p>
-        <?php
-    }
+	/**
+	 * Render the active checkbox field.
+	 *
+	 * @return void
+	 */
+	public function render_active_field() {
+		$is_active = (bool) get_option( 'techanum_maintenance_active', false );
+		?>
+		<label>
+			<input
+				type="checkbox"
+				id="techanum-maintenance-active"
+				name="techanum_maintenance_active"
+				value="1"
+				<?php checked( $is_active ); ?>
+			/>
+			<?php esc_html_e( 'Enable maintenance page', 'techanum-maintenance' ); ?>
+		</label>
+		<p class="description">
+			<?php esc_html_e( 'When enabled, visitors will see the maintenance page instead of the normal site.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
 
-    /**
-     * Render the logo upload field.
-     *
-     * @return void
-     */
-    public function render_logo_field() {
-        $logo_url = get_option( 'techanum_maintenance_logo', '' );
-        $hidden   = empty( $logo_url ) ? ' style="display:none;"' : '';
-        ?>
-        <div>
-            <input
-                type="hidden"
-                id="techanum-maintenance-logo"
-                name="techanum_maintenance_logo"
-                value="<?php echo esc_url( $logo_url ); ?>"
-            />
-            <button type="button" class="button" id="techanum-upload-logo-btn">
-                <?php esc_html_e( 'Upload Logo', 'techanum-maintenance' ); ?>
-            </button>
-            <button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-                <?php esc_html_e( 'Remove Logo', 'techanum-maintenance' ); ?>
-            </button>
-            <div style="margin-top: 10px;">
-                <img
-                    id="techanum-logo-preview"
-                    src="<?php echo esc_url( $logo_url ); ?>"
-                    alt="<?php esc_attr_e( 'Logo preview', 'techanum-maintenance' ); ?>"
-                    style="max-width: 150px; height: auto;<?php echo empty( $logo_url ) ? ' display:none;' : ''; ?>"
-                />
-            </div>
-            <p class="description">
-                <?php esc_html_e( 'Upload a logo to display on the maintenance page instead of the default icon.', 'techanum-maintenance' ); ?>
-            </p>
-        </div>
-        <?php
-    }
+	/**
+	 * Render the logo upload field.
+	 *
+	 * @return void
+	 */
+	public function render_logo_field() {
+		$logo_url    = get_option( 'techanum_maintenance_logo', '' );
+		$has_logo    = ! empty( $logo_url );
+		$btn_hidden  = $has_logo ? '' : ' style="display:none;"';
+		$img_hidden  = $has_logo ? '' : ' display:none;';
+		?>
+		<div>
+			<input
+				type="hidden"
+				id="techanum-maintenance-logo"
+				name="techanum_maintenance_logo"
+				value="<?php echo esc_url( $logo_url ); ?>"
+			/>
+			<button type="button" class="button" id="techanum-upload-logo-btn">
+				<?php esc_html_e( 'Upload Logo', 'techanum-maintenance' ); ?>
+			</button>
+			<button type="button" class="button" id="techanum-remove-logo-btn"<?php echo $btn_hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- contains only a safe inline style attribute ?>>
+				<?php esc_html_e( 'Remove Logo', 'techanum-maintenance' ); ?>
+			</button>
+			<div style="margin-top: 10px;">
+				<img
+					id="techanum-logo-preview"
+					src="<?php echo esc_url( $logo_url ); ?>"
+					alt="<?php esc_attr_e( 'Logo preview', 'techanum-maintenance' ); ?>"
+					style="max-width: 150px; height: auto;<?php echo esc_attr( $img_hidden ); ?>"
+				/>
+			</div>
+			<p class="description">
+				<?php esc_html_e( 'Upload a logo to display on the maintenance page instead of the default icon.', 'techanum-maintenance' ); ?>
+			</p>
+		</div>
+		<?php
+	}
 
-    /**
-     * Render the custom message field.
-     *
-     * @return void
-     */
-    public function render_message_field() {
-        $message = get_option( 'techanum_maintenance_custom_message', '' );
-        ?>
-        <textarea
-            id="techanum-maintenance-custom-message"
-            name="techanum_maintenance_custom_message"
-            rows="4"
-            cols="50"
-            class="large-text"
-            placeholder="<?php esc_attr_e( 'Leave empty to use the AI-generated message', 'techanum-maintenance' ); ?>"
-        ><?php echo esc_textarea( $message ); ?></textarea>
-        <p class="description">
-            <?php esc_html_e( 'If set, this message will override the AI-generated maintenance message.', 'techanum-maintenance' ); ?>
-        </p>
-        <?php
-    }
+	/**
+	 * Render the custom message field.
+	 *
+	 * @return void
+	 */
+	public function render_message_field() {
+		$message = get_option( 'techanum_maintenance_custom_message', '' );
+		?>
+		<textarea
+			id="techanum-maintenance-custom-message"
+			name="techanum_maintenance_custom_message"
+			rows="4"
+			cols="50"
+			class="large-text"
+			placeholder="<?php esc_attr_e( 'Leave empty to use the AI-generated message', 'techanum-maintenance' ); ?>"
+		><?php echo esc_textarea( $message ); ?></textarea>
+		<p class="description">
+			<?php esc_html_e( 'If set, this message will override the AI-generated maintenance message.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
 
-    /**
-     * Render the excluded roles field.
-     *
-     * @return void
-     */
-    public function render_excluded_roles_field() {
-        $excluded_roles = get_option( 'techanum_excluded_roles', array() );
-        $editable_roles  = get_editable_roles();
+	/**
+	 * Render the excluded roles field.
+	 *
+	 * Administrators are always excluded and are therefore not shown in this list.
+	 *
+	 * @return void
+	 */
+	public function render_excluded_roles_field() {
+		$excluded_roles = get_option( 'techanum_excluded_roles', array() );
+		if ( ! is_array( $excluded_roles ) ) {
+			$excluded_roles = array();
+		}
 
-        unset( $editable_roles['administrator'] );
+		$editable_roles = get_editable_roles();
+		// Administrators are always excluded — remove them from the UI.
+		unset( $editable_roles['administrator'] );
 
-        if ( empty( $editable_roles ) ) {
-            echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
-            return;
-        }
-        ?>
-        <fieldset>
-            <input type="hidden" name="techanum_excluded_roles_submitted" value="1" />
-            <?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
-                <label style="display: block; margin-bottom: 8px;">
-                    <input
-                        type="checkbox"
-                        name="techanum_excluded_roles[]"
-                        value="<?php echo esc_attr( $role_slug ); ?>"
-                        <?php checked( in_array( $role_slug, $excluded_roles, true ), true ); ?>
-                    />
-                    <?php echo esc_html( $role_data['name'] ); ?>
-                </label>
-            <?php endforeach; ?>
-        </fieldset>
-        <p class="description">
-            <?php esc_html_e( 'Users with the selected roles will bypass the maintenance page and see the normal site.', 'techanum-maintenance' ); ?>
-        </p>
-        <?php
-    }
+		if ( empty( $editable_roles ) ) {
+			echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
+			return;
+		}
+		?>
+		<fieldset>
+			<input type="hidden" name="techanum_excluded_roles_submitted" value="1" />
+			<?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
+				<label style="display: block; margin-bottom: 8px;">
+					<input
+						type="checkbox"
+						name="techanum_excluded_roles[]"
+						value="<?php echo esc_attr( $role_slug ); ?>"
+						<?php checked( in_array( $role_slug, $excluded_roles, true ), true ); ?>
+					/>
+					<?php echo esc_html( translate_user_role( $role_data['name'] ) ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<p class="description">
+			<?php esc_html_e( 'Users with the selected roles will bypass the maintenance page and see the normal site.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
 
-    /**
-     * Render the admin notices section description.
-     *
-     * @return void
-     */
-    public function render_notices_section_description() {
-        echo '<p>' . esc_html__(
-            'Choose which roles should not see WordPress admin notices. Administrators always retain notice visibility.',
-            'techanum-maintenance'
-        ) . '</p>';
-    }
+	/**
+	 * Render the admin notices section description.
+	 *
+	 * @return void
+	 */
+	public function render_notices_section_description() {
+		echo '<p>' . esc_html__(
+			'Choose which roles should not see WordPress admin notices. Administrators always retain notice visibility.',
+			'techanum-maintenance'
+		) . '</p>';
+	}
 
-    /**
-     * Render the silent roles checkbox field.
-     *
-     * @return void
-     */
-    public function render_silent_roles_field() {
-        $silent_roles = get_option( 'techanum_silent_roles', array() );
-        $editable_roles = get_editable_roles();
+	/**
+	 * Render the silent roles checkbox field.
+	 *
+	 * Administrators are always visible and are therefore not shown in this list.
+	 *
+	 * @return void
+	 */
+	public function render_silent_roles_field() {
+		$silent_roles = get_option( 'techanum_silent_roles', array() );
+		if ( ! is_array( $silent_roles ) ) {
+			$silent_roles = array();
+		}
 
-        unset( $editable_roles['administrator'] );
+		$editable_roles = get_editable_roles();
+		// Administrators always see notices — remove them from the UI.
+		unset( $editable_roles['administrator'] );
 
-        if ( empty( $editable_roles ) ) {
-            echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
-            return;
-        }
-        ?>
-        <fieldset>
-            <input type="hidden" name="techanum_silent_roles_submitted" value="1" />
-            <?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
-                <label style="display: block; margin-bottom: 8px;">
-                    <input
-                        type="checkbox"
-                        name="techanum_silent_roles[]"
-                        value="<?php echo esc_attr( $role_slug ); ?>"
-                        <?php checked( in_array( $role_slug, $silent_roles, true ), true ); ?>
-                    />
-                    <?php echo esc_html( $role_data['name'] ); ?>
-                </label>
-            <?php endforeach; ?>
-        </fieldset>
-        <p class="description">
-            <?php esc_html_e( 'Users with the selected roles will not see admin notices in the dashboard.', 'techanum-maintenance' ); ?>
-        </p>
-        <?php
-    }
+		if ( empty( $editable_roles ) ) {
+			echo '<p>' . esc_html__( 'No roles available to configure.', 'techanum-maintenance' ) . '</p>';
+			return;
+		}
+		?>
+		<fieldset>
+			<input type="hidden" name="techanum_silent_roles_submitted" value="1" />
+			<?php foreach ( $editable_roles as $role_slug => $role_data ) : ?>
+				<label style="display: block; margin-bottom: 8px;">
+					<input
+						type="checkbox"
+						name="techanum_silent_roles[]"
+						value="<?php echo esc_attr( $role_slug ); ?>"
+						<?php checked( in_array( $role_slug, $silent_roles, true ), true ); ?>
+					/>
+					<?php echo esc_html( translate_user_role( $role_data['name'] ) ); ?>
+				</label>
+			<?php endforeach; ?>
+		</fieldset>
+		<p class="description">
+			<?php esc_html_e( 'Users with the selected roles will not see admin notices in the dashboard.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
 
-    /**
-     * Sanitize the silent roles option.
-     *
-     * @param mixed $value Submitted value.
-     * @return array
-     */
-    public function sanitize_silent_roles( $value ) {
-        if ( ! is_array( $value ) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing
-            if ( isset( $_POST['techanum_silent_roles_submitted'] ) ) {
-                return array();
-            }
-            return get_option( 'techanum_silent_roles', array() );
-        }
+	/**
+	 * Sanitize the silent roles option.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return array
+	 */
+	public function sanitize_silent_roles( $value ) {
+		if ( ! is_array( $value ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['techanum_silent_roles_submitted'] ) ) {
+				return array();
+			}
+			return get_option( 'techanum_silent_roles', array() );
+		}
 
-        $all_roles   = wp_roles()->get_names();
-        $valid_roles = array_keys( $all_roles );
+		$all_roles   = wp_roles()->get_names();
+		$valid_roles = array_keys( $all_roles );
 
-        $sanitized = array_filter(
-            $value,
-            static function ( $role ) use ( $valid_roles ) {
-                return 'administrator' !== $role && in_array( $role, $valid_roles, true );
-            }
-        );
+		$sanitized = array_filter(
+			$value,
+			static function ( $role ) use ( $valid_roles ) {
+				return 'administrator' !== $role && in_array( $role, $valid_roles, true );
+			}
+		);
 
-        return array_values( $sanitized );
-    }
+		return array_values( $sanitized );
+	}
 
-    /**
-     * Sanitize the excluded roles option.
-     *
-     * @param mixed $value Submitted value.
-     * @return array
-     */
-    public function sanitize_excluded_roles( $value ) {
-        if ( ! is_array( $value ) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing
-            if ( isset( $_POST['techanum_excluded_roles_submitted'] ) ) {
-                return array();
-            }
-            return get_option( 'techanum_excluded_roles', array() );
-        }
+	/**
+	 * Sanitize the excluded roles option.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return array
+	 */
+	public function sanitize_excluded_roles( $value ) {
+		if ( ! is_array( $value ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['techanum_excluded_roles_submitted'] ) ) {
+				return array();
+			}
+			return get_option( 'techanum_excluded_roles', array() );
+		}
 
-        $all_roles   = wp_roles()->get_names();
-        $valid_roles = array_keys( $all_roles );
+		$all_roles   = wp_roles()->get_names();
+		$valid_roles = array_keys( $all_roles );
 
-        $sanitized = array_filter(
-            $value,
-            static function ( $role ) use ( $valid_roles ) {
-                return 'administrator' !== $role && in_array( $role, $valid_roles, true );
-            }
-        );
+		$sanitized = array_filter(
+			$value,
+			static function ( $role ) use ( $valid_roles ) {
+				return 'administrator' !== $role && in_array( $role, $valid_roles, true );
+			}
+		);
 
-        return array_values( $sanitized );
-    }
+		return array_values( $sanitized );
+	}
 
-    /**
-     * Render the API settings section description.
-     *
-     * @return void
-     */
-    public function render_api_section_description() {
-        echo '<p>' . esc_html__(
-            'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.',
-            'techanum-maintenance'
-        ) . '</p>';
-    }
+	/**
+	 * Render the API settings section description.
+	 *
+	 * @return void
+	 */
+	public function render_api_section_description() {
+		echo '<p>' . esc_html__(
+			'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.',
+			'techanum-maintenance'
+		) . '</p>';
+	}
 
-    /**
-     * Render the API key password field.
-     *
-     * @return void
-     */
-    public function render_api_key_field() {
-        $api_key    = get_option( 'techanum_maintenance_api_key', '' );
-        $has_value  = ! empty( $api_key );
-        ?>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <input
-                type="password"
-                id="techanum-maintenance-api-key"
-                name="techanum_maintenance_api_key"
-                value="<?php echo esc_attr( $api_key ); ?>"
-                class="regular-text"
-                autocomplete="new-password"
-                placeholder="<?php echo $has_value ? esc_attr( '••••••••' ) : esc_attr__( 'Enter your API key', 'techanum-maintenance' ); ?>"
-            />
-            <button type="button" class="button" id="techanum-toggle-api-key">
-                <?php esc_html_e( 'Show', 'techanum-maintenance' ); ?>
-            </button>
-        </div>
-        <p class="description">
-            <?php esc_html_e( 'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.', 'techanum-maintenance' ); ?>
-            <?php if ( $has_value ) : ?>
-                <br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
-            <?php endif; ?>
-        </p>
-        <?php
-    }
+	/**
+	 * Render the API key password field.
+	 *
+	 * @return void
+	 */
+	public function render_api_key_field() {
+		$api_key   = get_option( 'techanum_maintenance_api_key', '' );
+		$has_value = ! empty( $api_key );
+		?>
+		<div style="display: flex; align-items: center; gap: 8px;">
+			<input
+				type="password"
+				id="techanum-maintenance-api-key"
+				name="techanum_maintenance_api_key"
+				value="<?php echo esc_attr( $api_key ); ?>"
+				class="regular-text"
+				autocomplete="new-password"
+				placeholder="<?php echo $has_value ? esc_attr( '••••••••' ) : esc_attr__( 'Enter your API key', 'techanum-maintenance' ); ?>"
+			/>
+			<button type="button" class="button" id="techanum-toggle-api-key">
+				<?php esc_html_e( 'Show', 'techanum-maintenance' ); ?>
+			</button>
+		</div>
+		<p class="description">
+			<?php esc_html_e( 'Enter the API key for the AI service that dynamically generates maintenance messages. If you leave the field blank, an alternative message will be used.', 'techanum-maintenance' ); ?>
+			<?php if ( $has_value ) : ?>
+				<br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
+			<?php endif; ?>
+		</p>
+		<?php
+	}
 
-    /**
-     * Sanitize the API key option.
-     *
-     * Trims whitespace and applies sanitize_text_field.
-     *
-     * @param mixed $value Submitted value.
-     * @return string
-     */
-    public function sanitize_api_key( $value ) {
-        return trim( sanitize_text_field( (string) $value ) );
-    }
+	/**
+	 * Sanitize the API key option.
+	 *
+	 * Trims whitespace and applies sanitize_text_field.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return string
+	 */
+	public function sanitize_api_key( $value ) {
+		return trim( sanitize_text_field( (string) $value ) );
+	}
 
-    /**
-     * Render the settings page.
-     *
-     * @return void
-     */
-    public function render_settings_page() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return;
-        }
-        ?>
-        <div class="wrap">
-            <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields( $this->option_group );
-                do_settings_sections( $this->page_slug );
-                submit_button( __( 'Save Settings', 'techanum-maintenance' ) );
-                ?>
-            </form>
+	/**
+	 * Render the settings page.
+	 *
+	 * @return void
+	 */
+	public function render_settings_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		?>
+		<div class="wrap">
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<form method="post" action="options.php">
+				<?php
+				settings_fields( $this->option_group );
+				do_settings_sections( $this->page_slug );
+				submit_button( __( 'Save Settings', 'techanum-maintenance' ) );
+				?>
+			</form>
 
-            <div class="techanum-pro-teaser" style="margin-top: 24px; padding: 20px; border: 1px solid #ccd0d4; background: #f9fafb; border-radius: 6px;">
-                <h2 style="margin-top: 0; margin-bottom: 8px; font-size: 1.25em;">
-                    <?php esc_html_e( 'Techanum Maintenance Pro', 'techanum-maintenance' ); ?>
-                </h2>
-                <p style="margin: 0 0 12px;">
-                    <?php esc_html_e( 'The Pro version offers advanced scheduling, a countdown timer, and maintenance page templates.', 'techanum-maintenance' ); ?>
-                </p>
-                <a href="https://techanum.com/maintenance/" target="_blank" rel="noopener noreferrer" class="button button-primary">
-                    <?php esc_html_e( 'Learn more', 'techanum-maintenance' ); ?>
-                </a>
-            </div>
-        </div>
-        <?php
-    }
+			<div class="techanum-pro-teaser" style="margin-top: 24px; padding: 20px; border: 1px solid #ccd0d4; background: #f9fafb; border-radius: 6px;">
+				<h2 style="margin-top: 0; margin-bottom: 8px; font-size: 1.25em;">
+					<?php esc_html_e( 'Techanum Maintenance Pro', 'techanum-maintenance' ); ?>
+				</h2>
+				<p style="margin: 0 0 12px;">
+					<?php esc_html_e( 'The Pro version offers advanced scheduling, a countdown timer, and maintenance page templates.', 'techanum-maintenance' ); ?>
+				</p>
+				<a href="https://techanum.com/maintenance/" target="_blank" rel="noopener noreferrer" class="button button-primary">
+					<?php esc_html_e( 'Learn more', 'techanum-maintenance' ); ?>
+				</a>
+			</div>
+		</div>
+		<?php
+	}
 }

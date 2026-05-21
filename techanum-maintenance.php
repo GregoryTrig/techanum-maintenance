@@ -12,6 +12,8 @@
  * Domain Path:       /languages
  *
  * @package TechanumMaintenance
+ * @license GPL-3.0-or-later
+ * @link    https://techanum.com/maintenance/
  */
 
 // Prevent direct access.

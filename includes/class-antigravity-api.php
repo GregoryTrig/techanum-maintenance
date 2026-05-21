@@ -6,7 +6,9 @@
  * to generate dynamic maintenance messages.
  *
  * @package TechanumMaintenance
- * @since   1.1.0
+ * @license GPL-3.0-or-later
+ * @link    https://techanum.com/maintenance/
+ * @since   1.0.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

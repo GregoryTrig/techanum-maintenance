@@ -5,6 +5,8 @@
  * Handles the maintenance mode functionality for the plugin.
  *
  * @package TechanumMaintenance
+ * @license GPL-3.0-or-later
+ * @link    https://techanum.com/maintenance/
  * @since   1.0.0
  */
 

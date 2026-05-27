@@ -52,9 +52,16 @@ function techanum_maintenance_init() {
 	}
 	new Techanum_Maintenance_Mode();
 
-	// Load the Antigravity API class (used by the maintenance template).
-	if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-antigravity-api.php';
+	// Load the AI Router (multi-provider). Falls back to the legacy Gemini-only
+	// class if the router file is somehow missing (e.g. during a partial update).
+	if ( ! class_exists( 'Techanum_AI_Router' ) ) {
+		$router_file = plugin_dir_path( __FILE__ ) . 'includes/class-ai-router.php';
+		if ( file_exists( $router_file ) ) {
+			require_once $router_file;
+		} elseif ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
+			// Backward-compatibility fallback.
+			require_once plugin_dir_path( __FILE__ ) . 'includes/class-antigravity-api.php';
+		}
 	}
 
 	// Load admin-only classes.
@@ -84,6 +91,7 @@ function techanum_maintenance_activate() {
 	add_option( 'techanum_excluded_roles', array() );
 	add_option( 'techanum_silent_roles', array() );
 	add_option( 'techanum_maintenance_api_key', '' );
+	add_option( 'techanum_maintenance_ai_provider', 'auto' );
 }
 register_activation_hook( __FILE__, 'techanum_maintenance_activate' );
 

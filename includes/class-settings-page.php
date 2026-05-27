@@ -41,6 +41,7 @@ class Techanum_Maintenance_Settings {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_uploader' ) );
+		add_action( 'wp_ajax_techanum_generate_ai_message', array( $this, 'ajax_generate_ai_message' ) );
 	}
 
 	/**
@@ -124,6 +125,16 @@ class Techanum_Maintenance_Settings {
 			)
 		);
 
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_ai_provider',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( $this, 'sanitize_ai_provider' ),
+				'default'           => 'auto',
+			)
+		);
+
 		// ── Section: Maintenance Page ──────────────────────────────────────────
 		add_settings_section(
 			'techanum_maintenance_page',
@@ -189,6 +200,14 @@ class Techanum_Maintenance_Settings {
 		);
 
 		add_settings_field(
+			'techanum_maintenance_ai_provider',
+			__( 'AI Provider', 'techanum-maintenance' ),
+			array( $this, 'render_ai_provider_field' ),
+			$this->page_slug,
+			'techanum_api_settings'
+		);
+
+		add_settings_field(
 			'techanum_maintenance_api_key',
 			__( 'API Key', 'techanum-maintenance' ),
 			array( $this, 'render_api_key_field' ),
@@ -198,7 +217,7 @@ class Techanum_Maintenance_Settings {
 	}
 
 	/**
-	 * Enqueue the WordPress media uploader on this settings page.
+	 * Enqueue the WordPress media uploader and admin JS on this settings page.
 	 *
 	 * @param string $hook_suffix Current admin page hook suffix.
 	 * @return void
@@ -209,6 +228,24 @@ class Techanum_Maintenance_Settings {
 		}
 
 		wp_enqueue_media();
+
+		// Enqueue the "Generate with AI" button script.
+		wp_enqueue_script(
+			'techanum-admin',
+			plugin_dir_url( dirname( __FILE__ ) ) . 'assets/js/techanum-admin.js',
+			array( 'jquery' ),
+			'1.0.0',
+			true
+		);
+
+		wp_localize_script(
+			'techanum-admin',
+			'techanumAdmin',
+			array(
+				'ajaxurl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'techanum_generate_ai_message' ),
+			)
+		);
 
 		$inline_js = "
 			jQuery( document ).ready( function( $ ) {
@@ -352,6 +389,20 @@ class Techanum_Maintenance_Settings {
 		<p class="description">
 			<?php esc_html_e( 'If set, this message will override the AI-generated maintenance message.', 'techanum-maintenance' ); ?>
 		</p>
+		<p style="margin-top: 8px;">
+			<button type="button" class="button" id="techanum-generate-ai-btn">
+				<?php esc_html_e( 'Generate with AI', 'techanum-maintenance' ); ?>
+			</button>
+			<span
+				id="techanum-ai-spinner"
+				class="spinner"
+				style="float: none; margin: 0 4px; vertical-align: middle;"
+			></span>
+		</p>
+		<div
+			id="techanum-ai-notice"
+			style="display: none; margin-top: 8px; padding: 8px 12px; border-left-width: 4px; border-left-style: solid;"
+		></div>
 		<?php
 	}
 
@@ -520,6 +571,42 @@ class Techanum_Maintenance_Settings {
 	}
 
 	/**
+	 * Render the AI provider dropdown field.
+	 *
+	 * Allows the user to manually select their AI provider, or leave it on
+	 * "Auto-detect" to let the router infer the provider from the API key prefix.
+	 *
+	 * @return void
+	 */
+	public function render_ai_provider_field() {
+		$current = get_option( 'techanum_maintenance_ai_provider', 'auto' );
+
+		$providers = array(
+			'auto'     => __( 'Auto-detect (recommended)', 'techanum-maintenance' ),
+			'openai'   => __( 'OpenAI (ChatGPT)', 'techanum-maintenance' ),
+			'gemini'   => __( 'Google Gemini', 'techanum-maintenance' ),
+			'sharpapi' => __( 'SharpAPI', 'techanum-maintenance' ),
+			'edenai'   => __( 'Eden AI', 'techanum-maintenance' ),
+			'aimlapi'  => __( 'AI/ML API', 'techanum-maintenance' ),
+		);
+		?>
+		<select
+			id="techanum-maintenance-ai-provider"
+			name="techanum_maintenance_ai_provider"
+		>
+			<?php foreach ( $providers as $value => $label ) : ?>
+				<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $current, $value ); ?>>
+					<?php echo esc_html( $label ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<p class="description">
+			<?php esc_html_e( 'Select your AI provider. "Auto-detect" identifies OpenAI keys (starting with "sk-") and Google Gemini keys (starting with "AIza") automatically; all other keys default to AI/ML API. If you use SharpAPI or Eden AI, select the matching option explicitly.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
 	 * Render the API key password field.
 	 *
 	 * @return void
@@ -548,19 +635,132 @@ class Techanum_Maintenance_Settings {
 				<br><span style="color: #46b450;">&#10003; <?php esc_html_e( 'An API key is currently saved.', 'techanum-maintenance' ); ?></span>
 			<?php endif; ?>
 		</p>
+		<p class="description">
+			<?php
+			echo wp_kses_post(
+				sprintf(
+					/* translators: %s is the link to recommended AI API providers */
+					__( 'Looking for an API key? Check our <a href="%s" target="_blank" rel="noopener noreferrer">recommended AI API providers</a>.', 'techanum-maintenance' ),
+					esc_url( 'https://techanum.com/ai-tools/' )
+				)
+			);
+			?>
+		</p>
 		<?php
 	}
+
+	// ── AJAX handler ───────────────────────────────────────────────────────────
+
+	/**
+	 * AJAX handler: generate an AI maintenance message on demand.
+	 *
+	 * Hooked to wp_ajax_techanum_generate_ai_message.
+	 * Returns JSON via wp_send_json_success / wp_send_json_error.
+	 *
+	 * @return void
+	 */
+	public function ajax_generate_ai_message() {
+		// Verify nonce.
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'techanum_generate_ai_message' ) ) {
+			error_log( 'Techanum Maintenance [AJAX] - Nonce verification failed.' );
+			wp_send_json_error( array( 'error' => 'Security check failed. Please refresh the page and try again.' ) );
+		}
+
+		// Capability check.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			error_log( 'Techanum Maintenance [AJAX] - Insufficient permissions.' );
+			wp_send_json_error( array( 'error' => 'You do not have permission to perform this action.' ) );
+		}
+
+		// Ensure the AI router is loaded.
+		if ( ! function_exists( 'techanum_call_ai_api' ) ) {
+			$router_file = plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-ai-router.php';
+			if ( file_exists( $router_file ) ) {
+				require_once $router_file;
+			}
+		}
+
+		if ( ! function_exists( 'techanum_call_ai_api' ) ) {
+			error_log( 'Techanum Maintenance [AJAX] - techanum_call_ai_api() not available.' );
+			wp_send_json_error( array( 'error' => 'AI function is not available. Please check the plugin installation.' ) );
+		}
+
+		// Check that an API key is configured.
+		$api_key = get_option( 'techanum_maintenance_api_key', '' );
+		if ( empty( trim( $api_key ) ) ) {
+			error_log( 'Techanum Maintenance [AJAX] - No API key configured.' );
+			wp_send_json_error( array( 'error' => 'No API key is configured. Please enter your API key in the API Settings section and save before generating.' ) );
+		}
+
+		$prompt = 'Write a friendly maintenance message for a website, 2-3 sentences.';
+
+		error_log( 'Techanum Maintenance [AJAX] - Calling AI API on demand.' );
+
+		$result = techanum_call_ai_api( $prompt );
+
+		if ( is_wp_error( $result ) ) {
+			$error_message = $result->get_error_message();
+			error_log( 'Techanum Maintenance [AJAX] - AI call returned WP_Error: ' . $error_message );
+			wp_send_json_error( array( 'error' => $error_message ) );
+		}
+
+		if ( empty( $result ) ) {
+			error_log( 'Techanum Maintenance [AJAX] - AI call returned empty result.' );
+			wp_send_json_error( array( 'error' => 'The AI returned an empty response. Please check your API key and provider settings.' ) );
+		}
+
+		error_log( 'Techanum Maintenance [AJAX] - AI message generated successfully. Length: ' . strlen( $result ) . ' chars.' );
+
+		wp_send_json_success( array( 'message' => $result ) );
+	}
+
+	// ── Option sanitizers ──────────────────────────────────────────────────────
 
 	/**
 	 * Sanitize the API key option.
 	 *
 	 * Trims whitespace and applies sanitize_text_field.
+	 * Also clears the AI-message transient cache whenever the key changes,
+	 * so the next page load immediately triggers a fresh API call instead
+	 * of serving the previously cached fallback message.
 	 *
 	 * @param mixed $value Submitted value.
 	 * @return string
 	 */
 	public function sanitize_api_key( $value ) {
-		return trim( sanitize_text_field( (string) $value ) );
+		$new_key = trim( sanitize_text_field( (string) $value ) );
+		$old_key = trim( (string) get_option( 'techanum_maintenance_api_key', '' ) );
+
+		// If the key has changed (including being set for the first time),
+		// bust the transient so the next visitor gets a fresh AI message.
+		if ( $new_key !== $old_key ) {
+			delete_transient( 'techanum_maintenance_ai_message' );
+		}
+
+		return $new_key;
+	}
+
+	/**
+	 * Sanitize the AI provider option.
+	 *
+	 * Accepts only the known provider slugs; falls back to "auto" for any
+	 * unrecognised value. Also clears the AI-message transient cache when
+	 * the provider changes so the next page load triggers a fresh API call.
+	 *
+	 * @param mixed $value Submitted value.
+	 * @return string One of: auto, gemini, sharpapi, edenai, aimlapi.
+	 */
+	public function sanitize_ai_provider( $value ) {
+		$allowed = array( 'auto', 'openai', 'gemini', 'sharpapi', 'edenai', 'aimlapi' );
+		$new_val = in_array( $value, $allowed, true ) ? $value : 'auto';
+		$old_val = get_option( 'techanum_maintenance_ai_provider', 'auto' );
+
+		// Bust the cache whenever the provider changes.
+		if ( $new_val !== $old_val ) {
+			delete_transient( 'techanum_maintenance_ai_message' );
+		}
+
+		return $new_val;
 	}
 
 	/**
@@ -590,7 +790,7 @@ class Techanum_Maintenance_Settings {
 				<p style="margin: 0 0 12px;">
 					<?php esc_html_e( 'The Pro version offers advanced scheduling, a countdown timer, and maintenance page templates.', 'techanum-maintenance' ); ?>
 				</p>
-				<a href="https://techanum.com/maintenance/" target="_blank" rel="noopener noreferrer" class="button button-primary">
+				<a href="https://techanum.com/" target="_blank" rel="noopener noreferrer" class="button button-primary">
 					<?php esc_html_e( 'Learn more', 'techanum-maintenance' ); ?>
 				</a>
 			</div>

@@ -22,16 +22,22 @@ if ( ! headers_sent() ) {
 $custom_logo    = get_option( 'techanum_maintenance_logo', '' );
 $custom_message = get_option( 'techanum_maintenance_custom_message', '' );
 
-// If a custom message is set, it takes priority; otherwise request one from the API.
+// If a custom message is set, it takes priority; otherwise request one from the AI router.
 if ( ! empty( $custom_message ) ) {
 	$maintenance_message = $custom_message;
 } else {
-	// Guard: ensure the API class is available before instantiating it.
-	if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
-		require_once dirname( __DIR__ ) . '/includes/class-antigravity-api.php';
+	// Prefer the multi-provider AI Router; fall back to the legacy Gemini-only class.
+	if ( class_exists( 'Techanum_AI_Router' ) ) {
+		$ai_router           = new Techanum_AI_Router();
+		$maintenance_message = $ai_router->get_dynamic_message();
+	} else {
+		// Backward-compatibility fallback: load the original Gemini-only class.
+		if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-antigravity-api.php';
+		}
+		$antigravity_api     = new Techanum_Antigravity_API();
+		$maintenance_message = $antigravity_api->get_dynamic_message();
 	}
-	$antigravity_api     = new Techanum_Antigravity_API();
-	$maintenance_message = $antigravity_api->get_dynamic_message();
 }
 
 /* translators: %s: site name */

@@ -3,9 +3,9 @@
  * Techanum AI Router
  *
  * Routes AI maintenance-message requests to the correct provider
- * (OpenAI, Google Gemini, SharpAPI, Eden AI, or AI/ML API) based on
- * either the user-selected provider setting or automatic key-prefix
- * detection.
+ * (OpenAI, Google Gemini, SharpAPI, Eden AI, AI/ML API, or a user-defined
+ * Custom OpenAI-compatible endpoint) based on either the user-selected
+ * provider setting or automatic key-prefix detection.
  *
  * Also exposes the standalone helper function techanum_call_ai_api()
  * for use anywhere in the plugin.
@@ -82,6 +82,7 @@ class Techanum_AI_Router {
 	const PROVIDER_SHARP   = 'sharpapi';
 	const PROVIDER_EDEN    = 'edenai';
 	const PROVIDER_AIML    = 'aimlapi';
+	const PROVIDER_CUSTOM  = 'custom';
 
 	// ── Base URLs ──────────────────────────────────────────────────────────
 
@@ -114,11 +115,14 @@ class Techanum_AI_Router {
 	private $sharpapi_url = 'https://api.sharpapi.com/api/v1/content/generate';
 
 	/**
-	 * Google Gemini API endpoint (API key appended as a query parameter).
+	 * Google Gemini API base URL (model name and API key appended at call time).
+	 *
+	 * Uses the stable v1 endpoint. The model is substituted in call_gemini()
+	 * so that a fallback model can be tried automatically on a 404 response.
 	 *
 	 * @var string
 	 */
-	private $gemini_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+	private $gemini_base_url = 'https://generativelanguage.googleapis.com/v1/models/';
 
 	// ── Cache ──────────────────────────────────────────────────────────────
 
@@ -224,9 +228,13 @@ class Techanum_AI_Router {
 	/**
 	 * Resolve which provider to use.
 	 *
-	 * If the saved setting is anything other than "auto", that explicit
-	 * choice is returned directly.  When set to "auto" (the default), the
-	 * API key prefix is inspected:
+	 * If the saved setting is "custom", that explicit choice is returned
+	 * directly so the user's custom endpoint is always honoured.
+	 *
+	 * If the saved setting is anything other than "auto" or "custom", that
+	 * explicit choice is also returned directly.
+	 *
+	 * When set to "auto" (the default), the API key prefix is inspected:
 	 *
 	 *  - Starts with "sk-"  → OpenAI
 	 *  - Starts with "AIza" → Google Gemini
@@ -242,7 +250,13 @@ class Techanum_AI_Router {
 	private function resolve_provider( $api_key ) {
 		$saved = get_option( 'techanum_maintenance_ai_provider', self::PROVIDER_AUTO );
 
-		// Explicit provider selected — honour it.
+		// "Custom" provider — always honour the explicit selection.
+		if ( self::PROVIDER_CUSTOM === $saved ) {
+			error_log( 'Techanum Maintenance [Router] - Custom provider explicitly selected.' );
+			return self::PROVIDER_CUSTOM;
+		}
+
+		// Any other explicit provider selected (openai, gemini, sharpapi, edenai, aimlapi).
 		if ( self::PROVIDER_AUTO !== $saved ) {
 			$provider = sanitize_key( $saved );
 			error_log( 'Techanum Maintenance [Router] - Explicit provider selected: ' . $provider );
@@ -293,6 +307,10 @@ class Techanum_AI_Router {
 			return $this->call_sharpapi( $api_key, $prompt );
 		}
 
+		if ( self::PROVIDER_CUSTOM === $provider ) {
+			return $this->call_custom( $api_key, $prompt );
+		}
+
 		// OpenAI and AI/ML API share the OpenAI-compatible /v1/chat/completions format.
 		$base_url = isset( $this->base_urls[ $provider ] )
 			? $this->base_urls[ $provider ]
@@ -306,18 +324,21 @@ class Techanum_AI_Router {
 	/**
 	 * Send a POST request to the Google Gemini API.
 	 *
-	 * Endpoint : https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={API_KEY}
+	 * Endpoint : https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={API_KEY}
 	 * Auth     : API key as a query-string parameter.
 	 * Response : $data['candidates'][0]['content']['parts'][0]['text']
+	 *
+	 * Tries gemini-2.0-flash first; if that returns a 404 (model not found /
+	 * not available in the account's region), falls back to gemini-1.5-flash
+	 * automatically.
 	 *
 	 * @param string $api_key The Gemini API key.
 	 * @param string $prompt  The prompt to send.
 	 * @return string|false Generated text or false on failure.
 	 */
 	private function call_gemini( $api_key, $prompt ) {
-		$request_url = add_query_arg( 'key', $api_key, $this->gemini_url );
-
-		error_log( 'Techanum Maintenance [Gemini] - Sending request to Gemini API.' );
+		// Primary model first, then fallback — mirrors the OpenAI-compatible pattern.
+		$models = array( 'gemini-2.0-flash', 'gemini-1.5-flash' );
 
 		$body = wp_json_encode(
 			array(
@@ -340,46 +361,120 @@ class Techanum_AI_Router {
 			return false;
 		}
 
-		$response = wp_remote_post(
-			$request_url,
-			array(
-				'headers' => array( 'Content-Type' => 'application/json' ),
-				'body'    => $body,
-				'timeout' => 15,
-			)
-		);
+		foreach ( $models as $model ) {
+			$endpoint    = $this->gemini_base_url . $model . ':generateContent';
+			$request_url = add_query_arg( 'key', $api_key, $endpoint );
 
-		if ( is_wp_error( $response ) ) {
-			error_log( 'Techanum Maintenance [Gemini] - Network error: ' . $response->get_error_message() );
+			error_log( 'Techanum Maintenance [Gemini] - Sending request with model "' . $model . '".' );
+
+			$response = wp_remote_post(
+				$request_url,
+				array(
+					'headers' => array( 'Content-Type' => 'application/json' ),
+					'body'    => $body,
+					'timeout' => 15,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				error_log( 'Techanum Maintenance [Gemini] - Network error (model: ' . $model . '): ' . $response->get_error_message() );
+				return false;
+			}
+
+			$code = wp_remote_retrieve_response_code( $response );
+			$raw  = wp_remote_retrieve_body( $response );
+
+			// 404 means the model is not available — try the next one.
+			if ( 404 === (int) $code ) {
+				error_log( 'Techanum Maintenance [Gemini] - HTTP 404 for model "' . $model . '" (not found / deprecated); trying fallback model. Body: ' . $raw );
+				continue;
+			}
+
+			if ( 200 !== (int) $code ) {
+				error_log( 'Techanum Maintenance [Gemini] - HTTP ' . $code . ' (model: ' . $model . ') | Response body: ' . $raw );
+				return false;
+			}
+
+			$data = json_decode( $raw, true );
+
+			if ( JSON_ERROR_NONE !== json_last_error() ) {
+				error_log( 'Techanum Maintenance [Gemini] - JSON decode error (model: ' . $model . '): ' . json_last_error_msg() . ' | Raw: ' . $raw );
+				return false;
+			}
+
+			if (
+				isset( $data['candidates'][0]['content']['parts'][0]['text'] )
+				&& '' !== trim( $data['candidates'][0]['content']['parts'][0]['text'] )
+			) {
+				$text = sanitize_text_field( $data['candidates'][0]['content']['parts'][0]['text'] );
+				error_log( 'Techanum Maintenance [Gemini] - Success (model: ' . $model . '). Message length: ' . strlen( $text ) . ' chars.' );
+				return $text;
+			}
+
+			error_log( 'Techanum Maintenance [Gemini] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
 			return false;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-		$raw  = wp_remote_retrieve_body( $response );
-
-		if ( 200 !== (int) $code ) {
-			error_log( 'Techanum Maintenance [Gemini] - HTTP ' . $code . ' | Response body: ' . $raw );
-			return false;
-		}
-
-		$data = json_decode( $raw, true );
-
-		if ( JSON_ERROR_NONE !== json_last_error() ) {
-			error_log( 'Techanum Maintenance [Gemini] - JSON decode error: ' . json_last_error_msg() . ' | Raw: ' . $raw );
-			return false;
-		}
-
-		if (
-			isset( $data['candidates'][0]['content']['parts'][0]['text'] )
-			&& '' !== trim( $data['candidates'][0]['content']['parts'][0]['text'] )
-		) {
-			$text = sanitize_text_field( $data['candidates'][0]['content']['parts'][0]['text'] );
-			error_log( 'Techanum Maintenance [Gemini] - Success. Message length: ' . strlen( $text ) . ' chars.' );
-			return $text;
-		}
-
-		error_log( 'Techanum Maintenance [Gemini] - Unexpected response structure. Full body: ' . $raw );
+		error_log( 'Techanum Maintenance [Gemini] - All models exhausted. Returning false.' );
 		return false;
+	}
+
+	// ── Custom (OpenAI-compatible) provider ────────────────────────────────
+
+	/**
+	 * Send a POST request to the user-configured custom OpenAI-compatible endpoint.
+	 *
+	 * Reads the base URL from 'techanum_maintenance_custom_base_url' and the
+	 * model name from 'techanum_maintenance_custom_model'.
+	 *
+	 * URL handling:
+	 *  - If the base URL already ends with '/chat/completions', it is used
+	 *    verbatim (the user has provided the full path).
+	 *  - Otherwise, '/v1/chat/completions' is appended automatically.
+	 *
+	 * This allows both short base URLs (https://openrouter.ai/api/v1) and
+	 * full endpoint URLs (https://openrouter.ai/api/v1/chat/completions)
+	 * to work without further configuration.
+	 *
+	 * @param string $api_key The API key supplied by the user.
+	 * @param string $prompt  The prompt to send.
+	 * @return string|false Generated text or false on failure.
+	 */
+	private function call_custom( $api_key, $prompt ) {
+		$base_url = trim( get_option( 'techanum_maintenance_custom_base_url', '' ) );
+		$model    = trim( get_option( 'techanum_maintenance_custom_model', '' ) );
+
+		if ( empty( $base_url ) ) {
+			error_log( 'Techanum Maintenance [custom] - No custom base URL configured. Aborting.' );
+			return false;
+		}
+
+		if ( empty( $model ) ) {
+			error_log( 'Techanum Maintenance [custom] - No custom model configured. Aborting.' );
+			return false;
+		}
+
+		// Build the full request URL.
+		// If the user already included the full path, use it as-is.
+		if (
+			substr( rtrim( $base_url, '/' ), -strlen( '/chat/completions' ) ) === '/chat/completions'
+		) {
+			$request_url = $base_url;
+		} else {
+			$request_url = trailingslashit( $base_url ) . 'chat/completions';
+		}
+
+		error_log( 'Techanum Maintenance [custom] - Base URL: ' . $base_url );
+		error_log( 'Techanum Maintenance [custom] - Model: ' . $model );
+		error_log( 'Techanum Maintenance [custom] - Request URL: ' . $request_url );
+
+		$result = $this->do_openai_request( $api_key, $request_url, 'custom', $model, $prompt );
+
+		if ( false === $result ) {
+			error_log( 'Techanum Maintenance [custom] - Request failed. Returning false.' );
+		}
+
+		return $result;
 	}
 
 	// ── OpenAI-compatible providers ────────────────────────────────────────
@@ -389,6 +484,8 @@ class Techanum_AI_Router {
 	 *
 	 * Used for OpenAI and AI/ML API (both share the same request/response format).
 	 * Eden AI and SharpAPI have their own dedicated methods.
+	 * The Custom provider is handled by call_custom() which calls do_openai_request()
+	 * directly with the user-specified model.
 	 *
 	 * Endpoint : {BASE_URL}/v1/chat/completions
 	 * Auth     : Bearer token in the Authorization header.

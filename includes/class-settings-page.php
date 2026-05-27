@@ -135,6 +135,27 @@ class Techanum_Maintenance_Settings {
 			)
 		);
 
+		// Custom provider settings.
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_custom_base_url',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			$this->option_group,
+			'techanum_maintenance_custom_model',
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+
 		// ── Section: Maintenance Page ──────────────────────────────────────────
 		add_settings_section(
 			'techanum_maintenance_page',
@@ -214,6 +235,22 @@ class Techanum_Maintenance_Settings {
 			$this->page_slug,
 			'techanum_api_settings'
 		);
+
+		add_settings_field(
+			'techanum_maintenance_custom_base_url',
+			__( 'Custom Base URL', 'techanum-maintenance' ),
+			array( $this, 'render_custom_base_url_field' ),
+			$this->page_slug,
+			'techanum_api_settings'
+		);
+
+		add_settings_field(
+			'techanum_maintenance_custom_model',
+			__( 'Custom Model', 'techanum-maintenance' ),
+			array( $this, 'render_custom_model_field' ),
+			$this->page_slug,
+			'techanum_api_settings'
+		);
 	}
 
 	/**
@@ -289,6 +326,22 @@ class Techanum_Maintenance_Settings {
 					input.attr( 'type', isPassword ? 'text' : 'password' );
 					$( this ).text( isPassword ? '" . esc_js( __( 'Hide', 'techanum-maintenance' ) ) . "' : '" . esc_js( __( 'Show', 'techanum-maintenance' ) ) . "' );
 				});
+
+				// Toggle visibility of Custom provider fields.
+				function techanumToggleCustomFields() {
+					var provider = $( '#techanum-maintenance-ai-provider' ).val();
+					if ( 'custom' === provider ) {
+						$( '.techanum-custom-provider-row' ).show();
+					} else {
+						$( '.techanum-custom-provider-row' ).hide();
+					}
+				}
+
+				// Run on page load.
+				techanumToggleCustomFields();
+
+				// Run whenever the provider dropdown changes.
+				$( '#techanum-maintenance-ai-provider' ).on( 'change', techanumToggleCustomFields );
 			});
 		";
 
@@ -588,6 +641,7 @@ class Techanum_Maintenance_Settings {
 			'sharpapi' => __( 'SharpAPI', 'techanum-maintenance' ),
 			'edenai'   => __( 'Eden AI', 'techanum-maintenance' ),
 			'aimlapi'  => __( 'AI/ML API', 'techanum-maintenance' ),
+			'custom'   => __( 'Custom (OpenAI-compatible)', 'techanum-maintenance' ),
 		);
 		?>
 		<select
@@ -601,7 +655,7 @@ class Techanum_Maintenance_Settings {
 			<?php endforeach; ?>
 		</select>
 		<p class="description">
-			<?php esc_html_e( 'Select your AI provider. "Auto-detect" identifies OpenAI keys (starting with "sk-") and Google Gemini keys (starting with "AIza") automatically; all other keys default to AI/ML API. If you use SharpAPI or Eden AI, select the matching option explicitly.', 'techanum-maintenance' ); ?>
+			<?php esc_html_e( 'Select your AI provider. "Auto-detect" identifies OpenAI keys (starting with "sk-") and Google Gemini keys (starting with "AIza") automatically; all other keys default to AI/ML API. If you use SharpAPI or Eden AI, select the matching option explicitly. Choose "Custom" to connect to any OpenAI-compatible API (OpenRouter, Together AI, Ollama, etc.)', 'techanum-maintenance' ); ?>
 		</p>
 		<?php
 	}
@@ -645,6 +699,63 @@ class Techanum_Maintenance_Settings {
 				)
 			);
 			?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render the Custom Base URL field (shown only when provider is "custom").
+	 *
+	 * @return void
+	 */
+	public function render_custom_base_url_field() {
+		$base_url = get_option( 'techanum_maintenance_custom_base_url', '' );
+		?>
+		<tr class="techanum-custom-provider-row" style="display:none;">
+			<th scope="row"></th>
+			<td>
+		<?php
+		// Output only the field content; the <tr> wrapping is handled by the
+		// settings API, but we use the row class on a wrapping element instead.
+		// Close the fake row tags and render the actual field.
+		?>
+		</td></tr>
+		<?php
+		// WordPress settings API renders each field inside a <tr>, so we
+		// attach the hide/show class directly to the field wrapper below.
+		?>
+		<input
+			type="url"
+			id="techanum-maintenance-custom-base-url"
+			name="techanum_maintenance_custom_base_url"
+			value="<?php echo esc_url( $base_url ); ?>"
+			class="regular-text"
+			placeholder="https://openrouter.ai/api/v1"
+		/>
+		<p class="description">
+			<?php esc_html_e( 'The base URL of your OpenAI-compatible API endpoint (e.g. https://openrouter.ai/api/v1 or http://localhost:11434/v1). The path /chat/completions will be appended automatically unless the URL already ends with it.', 'techanum-maintenance' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render the Custom Model field (shown only when provider is "custom").
+	 *
+	 * @return void
+	 */
+	public function render_custom_model_field() {
+		$model = get_option( 'techanum_maintenance_custom_model', '' );
+		?>
+		<input
+			type="text"
+			id="techanum-maintenance-custom-model"
+			name="techanum_maintenance_custom_model"
+			value="<?php echo esc_attr( $model ); ?>"
+			class="regular-text"
+			placeholder="openai/gpt-3.5-turbo"
+		/>
+		<p class="description">
+			<?php esc_html_e( 'The model identifier to send in the request (e.g. openai/gpt-3.5-turbo, llama3, mistralai/mistral-7b-instruct). Must be supported by your chosen API endpoint.', 'techanum-maintenance' ); ?>
 		</p>
 		<?php
 	}
@@ -743,15 +854,16 @@ class Techanum_Maintenance_Settings {
 	/**
 	 * Sanitize the AI provider option.
 	 *
-	 * Accepts only the known provider slugs; falls back to "auto" for any
-	 * unrecognised value. Also clears the AI-message transient cache when
-	 * the provider changes so the next page load triggers a fresh API call.
+	 * Accepts only the known provider slugs (including 'custom'); falls back
+	 * to "auto" for any unrecognised value. Also clears the AI-message
+	 * transient cache when the provider changes so the next page load
+	 * triggers a fresh API call.
 	 *
 	 * @param mixed $value Submitted value.
-	 * @return string One of: auto, gemini, sharpapi, edenai, aimlapi.
+	 * @return string One of: auto, openai, gemini, sharpapi, edenai, aimlapi, custom.
 	 */
 	public function sanitize_ai_provider( $value ) {
-		$allowed = array( 'auto', 'openai', 'gemini', 'sharpapi', 'edenai', 'aimlapi' );
+		$allowed = array( 'auto', 'openai', 'gemini', 'sharpapi', 'edenai', 'aimlapi', 'custom' );
 		$new_val = in_array( $value, $allowed, true ) ? $value : 'auto';
 		$old_val = get_option( 'techanum_maintenance_ai_provider', 'auto' );
 
@@ -772,12 +884,23 @@ class Techanum_Maintenance_Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		$current_provider = get_option( 'techanum_maintenance_ai_provider', 'auto' );
 		?>
 		<div class="wrap">
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<form method="post" action="options.php">
 				<?php
 				settings_fields( $this->option_group );
+
+				// Before do_settings_sections we inject a small piece of CSS to
+				// pre-hide the custom-provider rows if the provider is not "custom"
+				// so there is no flash-of-visible-content before the JS runs.
+				$hide_style = ( 'custom' !== $current_provider ) ? ' style="display:none;"' : '';
+				echo '<style>
+					.techanum-custom-provider-row' . ( 'custom' !== $current_provider ? ' { display: none; }' : '' ) . '
+				</style>';
+
 				do_settings_sections( $this->page_slug );
 				submit_button( __( 'Save Settings', 'techanum-maintenance' ) );
 				?>
@@ -795,6 +918,37 @@ class Techanum_Maintenance_Settings {
 				</a>
 			</div>
 		</div>
+
+		<script>
+		jQuery( document ).ready( function( $ ) {
+			// Attach the class to the <tr> elements that wrap the custom fields.
+			// The Settings API renders each field inside a <tr> whose id attribute
+			// is based on the field id; we target those rows directly.
+			var $baseUrlRow  = $( '#techanum-maintenance-custom-base-url' ).closest( 'tr' );
+			var $modelRow    = $( '#techanum-maintenance-custom-model' ).closest( 'tr' );
+
+			$baseUrlRow.addClass( 'techanum-custom-provider-row' );
+			$modelRow.addClass( 'techanum-custom-provider-row' );
+
+			// Apply the initial visibility that matches the saved provider.
+			var initialProvider = $( '#techanum-maintenance-ai-provider' ).val();
+			if ( 'custom' !== initialProvider ) {
+				$baseUrlRow.hide();
+				$modelRow.hide();
+			}
+
+			// Re-apply whenever the dropdown changes.
+			$( '#techanum-maintenance-ai-provider' ).on( 'change', function() {
+				if ( 'custom' === $( this ).val() ) {
+					$baseUrlRow.show();
+					$modelRow.show();
+				} else {
+					$baseUrlRow.hide();
+					$modelRow.hide();
+				}
+			} );
+		} );
+		</script>
 		<?php
 	}
 }

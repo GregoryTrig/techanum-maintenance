@@ -61,6 +61,11 @@ function techanum_call_ai_api( $prompt ) {
 
 // ── Router class ───────────────────────────────────────────────────────────────
 
+// Log the exact file path the moment this file is parsed by PHP.
+// This confirms which copy of the router is actually being loaded at runtime.
+// Check debug.log for: "Techanum Maintenance [Router] - Loaded from: ..."
+error_log( 'Techanum Maintenance [Router] - Loaded from: ' . __FILE__ );
+
 /**
  * Class Techanum_AI_Router
  *
@@ -245,18 +250,23 @@ class Techanum_AI_Router {
 		}
 
 		// Auto-detect from key prefix.
-		if ( 0 === strpos( $api_key, 'sk-' ) ) {
+		// Trim the key defensively — leading/trailing whitespace would defeat strpos().
+		$trimmed_key = trim( $api_key );
+
+		error_log( 'Techanum Maintenance [Router] - Auto-detect: key prefix is "' . substr( $trimmed_key, 0, 6 ) . '..." (first 6 chars).' );
+
+		if ( 0 === strpos( $trimmed_key, 'sk-' ) ) {
 			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: openai (key starts with sk-).' );
 			return self::PROVIDER_OPENAI;
 		}
 
-		if ( 0 === strpos( $api_key, 'AIza' ) ) {
+		if ( 0 === strpos( $trimmed_key, 'AIza' ) ) {
 			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: gemini (key starts with AIza).' );
 			return self::PROVIDER_GEMINI;
 		}
 
 		// Default fallback for unrecognised key formats.
-		error_log( 'Techanum Maintenance [Router] - Auto-detect: unrecognised key prefix; defaulting to aimlapi.' );
+		error_log( 'Techanum Maintenance [Router] - Auto-detect: unrecognised key prefix (not sk- or AIza); defaulting to aimlapi.' );
 		return self::PROVIDER_AIML;
 	}
 

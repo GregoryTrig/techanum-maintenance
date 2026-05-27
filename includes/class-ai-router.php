@@ -84,15 +84,29 @@ class Techanum_AI_Router {
 	 * Provider base URLs for OpenAI-compatible endpoints.
 	 *
 	 * Each value is the root URL; the method appends /v1/chat/completions.
+	 * Note: Eden AI and SharpAPI use their own endpoint paths and are handled
+	 * separately in call_provider().
 	 *
 	 * @var array<string,string>
 	 */
 	private $base_urls = array(
 		self::PROVIDER_OPENAI => 'https://api.openai.com',
-		self::PROVIDER_SHARP  => 'https://api.sharpapi.com',
-		self::PROVIDER_EDEN   => 'https://api.edenai.run/v2',
 		self::PROVIDER_AIML   => 'https://api.aimlapi.com',
 	);
+
+	/**
+	 * Eden AI chat endpoint (uses its own path structure, not /v1/chat/completions).
+	 *
+	 * @var string
+	 */
+	private $edenai_url = 'https://api.edenai.run/v2/text/chat';
+
+	/**
+	 * SharpAPI chat endpoint.
+	 *
+	 * @var string
+	 */
+	private $sharpapi_url = 'https://api.sharpapi.com/api/v1/content/generate';
 
 	/**
 	 * Google Gemini API endpoint (API key appended as a query parameter).
@@ -261,7 +275,15 @@ class Techanum_AI_Router {
 			return $this->call_gemini( $api_key, $prompt );
 		}
 
-		// All remaining providers share the OpenAI-compatible format.
+		if ( self::PROVIDER_EDEN === $provider ) {
+			return $this->call_edenai( $api_key, $prompt );
+		}
+
+		if ( self::PROVIDER_SHARP === $provider ) {
+			return $this->call_sharpapi( $api_key, $prompt );
+		}
+
+		// OpenAI and AI/ML API share the OpenAI-compatible /v1/chat/completions format.
 		$base_url = isset( $this->base_urls[ $provider ] )
 			? $this->base_urls[ $provider ]
 			: $this->base_urls[ self::PROVIDER_AIML ];
@@ -355,7 +377,8 @@ class Techanum_AI_Router {
 	/**
 	 * Send a POST request to an OpenAI-compatible /v1/chat/completions endpoint.
 	 *
-	 * Used for OpenAI, SharpAPI, Eden AI, and AI/ML API.
+	 * Used for OpenAI and AI/ML API (both share the same request/response format).
+	 * Eden AI and SharpAPI have their own dedicated methods.
 	 *
 	 * Endpoint : {BASE_URL}/v1/chat/completions
 	 * Auth     : Bearer token in the Authorization header.
@@ -466,6 +489,159 @@ class Techanum_AI_Router {
 		}
 
 		error_log( 'Techanum Maintenance [' . $provider . '] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
+		return false;
+	}
+
+	// ── Eden AI ────────────────────────────────────────────────────────────
+
+	/**
+	 * Send a POST request to the Eden AI text/chat endpoint.
+	 *
+	 * Endpoint : https://api.edenai.run/v2/text/chat
+	 * Auth     : Bearer token in the Authorization header.
+	 * Docs     : https://docs.edenai.run/reference/text_chat_create
+	 * Response : $data['openai']['generated_text'] (first available provider key)
+	 *
+	 * @param string $api_key The Eden AI API key.
+	 * @param string $prompt  The prompt to send.
+	 * @return string|false Generated text or false on failure.
+	 */
+	private function call_edenai( $api_key, $prompt ) {
+		error_log( 'Techanum Maintenance [edenai] - Sending request to Eden AI.' );
+
+		$body = wp_json_encode(
+			array(
+				'providers'   => array( 'openai' ),
+				'text'        => $prompt,
+				'chatbot_global_action' => 'You are a helpful assistant.',
+				'previous_history'      => array(),
+				'temperature'           => 0.9,
+				'max_tokens'            => 200,
+			)
+		);
+
+		if ( false === $body ) {
+			error_log( 'Techanum Maintenance [edenai] - Failed to JSON-encode request body.' );
+			return false;
+		}
+
+		$response = wp_remote_post(
+			$this->edenai_url,
+			array(
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . $api_key,
+				),
+				'body'    => $body,
+				'timeout' => 20,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			error_log( 'Techanum Maintenance [edenai] - Network error: ' . $response->get_error_message() );
+			return false;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		$raw  = wp_remote_retrieve_body( $response );
+
+		if ( 200 !== (int) $code ) {
+			error_log( 'Techanum Maintenance [edenai] - HTTP ' . $code . ' | Response body: ' . $raw );
+			return false;
+		}
+
+		$data = json_decode( $raw, true );
+
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			error_log( 'Techanum Maintenance [edenai] - JSON decode error: ' . json_last_error_msg() );
+			return false;
+		}
+
+		// Eden AI wraps results per-provider; iterate to find the first successful one.
+		if ( is_array( $data ) ) {
+			foreach ( $data as $provider_key => $provider_data ) {
+				if ( isset( $provider_data['generated_text'] ) && '' !== trim( $provider_data['generated_text'] ) ) {
+					$text = sanitize_text_field( $provider_data['generated_text'] );
+					error_log( 'Techanum Maintenance [edenai] - Success via sub-provider "' . $provider_key . '". Length: ' . strlen( $text ) . ' chars.' );
+					return $text;
+				}
+			}
+		}
+
+		error_log( 'Techanum Maintenance [edenai] - Unexpected response structure. Full body: ' . $raw );
+		return false;
+	}
+
+	// ── SharpAPI ───────────────────────────────────────────────────────────
+
+	/**
+	 * Send a POST request to the SharpAPI content generation endpoint.
+	 *
+	 * Endpoint : https://api.sharpapi.com/api/v1/content/generate
+	 * Auth     : Bearer token in the Authorization header.
+	 * Docs     : https://sharpapi.com/documentation
+	 * Response : $data['data']['attributes']['content']
+	 *
+	 * @param string $api_key The SharpAPI API key.
+	 * @param string $prompt  The prompt to send.
+	 * @return string|false Generated text or false on failure.
+	 */
+	private function call_sharpapi( $api_key, $prompt ) {
+		error_log( 'Techanum Maintenance [sharpapi] - Sending request to SharpAPI.' );
+
+		$body = wp_json_encode(
+			array(
+				'prompt'      => $prompt,
+				'max_length'  => 200,
+				'temperature' => 0.9,
+				'language'    => 'English',
+			)
+		);
+
+		if ( false === $body ) {
+			error_log( 'Techanum Maintenance [sharpapi] - Failed to JSON-encode request body.' );
+			return false;
+		}
+
+		$response = wp_remote_post(
+			$this->sharpapi_url,
+			array(
+				'headers' => array(
+					'Content-Type'  => 'application/json',
+					'Authorization' => 'Bearer ' . $api_key,
+				),
+				'body'    => $body,
+				'timeout' => 20,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			error_log( 'Techanum Maintenance [sharpapi] - Network error: ' . $response->get_error_message() );
+			return false;
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		$raw  = wp_remote_retrieve_body( $response );
+
+		if ( 200 !== (int) $code ) {
+			error_log( 'Techanum Maintenance [sharpapi] - HTTP ' . $code . ' | Response body: ' . $raw );
+			return false;
+		}
+
+		$data = json_decode( $raw, true );
+
+		if ( JSON_ERROR_NONE !== json_last_error() ) {
+			error_log( 'Techanum Maintenance [sharpapi] - JSON decode error: ' . json_last_error_msg() );
+			return false;
+		}
+
+		if ( isset( $data['data']['attributes']['content'] ) && '' !== trim( $data['data']['attributes']['content'] ) ) {
+			$text = sanitize_text_field( $data['data']['attributes']['content'] );
+			error_log( 'Techanum Maintenance [sharpapi] - Success. Length: ' . strlen( $text ) . ' chars.' );
+			return $text;
+		}
+
+		error_log( 'Techanum Maintenance [sharpapi] - Unexpected response structure. Full body: ' . $raw );
 		return false;
 	}
 

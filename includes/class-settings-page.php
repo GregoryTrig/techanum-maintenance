@@ -292,7 +292,7 @@ class Techanum_Maintenance_Settings {
 			});
 		";
 
-		wp_add_inline_script( 'jquery', $inline_js );
+		wp_add_inline_script( 'techanum-admin', $inline_js );
 	}
 
 	/**

@@ -12,7 +12,10 @@ Replace the default WordPress maintenance screen with a friendly, custom page �
 
 == Description ==
 
-Techanum Maintenance gives you a beautiful, customizable maintenance page in seconds. Upload your logo, write your own message, or let AI generate one for you. The plugin also cleans up the WordPress dashboard by hiding distracting admin notices from non‑admin users.
+Techanum Maintenance gives you a beautiful, customizable maintenance page in seconds. 
+Upload your logo, write your own message, or let AI generate one for you. 
+The plugin also cleans up the WordPress dashboard by hiding distracting admin notices from non‑admin users.
+Join our Telegram group: https://t.me/TechanumChat
 
 **✨ Features**
 - One‑click maintenance mode — no coding required.
@@ -26,7 +29,6 @@ Techanum Maintenance gives you a beautiful, customizable maintenance page in sec
 **🤖 Supported AI Providers**
 - OpenAI (GPT‑4o mini, GPT‑3.5 Turbo)
 - Anthropic (Claude 3 Haiku)
-- Google Gemini (2.0 Flash)
 - Any OpenAI‑compatible endpoint (Custom provider)
 - Local LLMs: LM Studio, Ollama, and similar
 
@@ -75,7 +77,7 @@ Open an issue on [GitHub](https://github.com/techanum/techanum-maintenance) or p
 * Improved provider auto‑detection (sk‑, AIza‑, sk‑ant‑ prefixes)
 * Added Custom provider for any OpenAI‑compatible endpoint
 * Expanded error logging throughout the AI router
-* Fixed Gemini endpoint (updated model from gemini‑pro to gemini‑2.0‑flash)
+* Removed Gemini provider temporarily (pending stable endpoint)
 * Removed in‑plugin Pro promotion (plugin is now 100% free)
 
 = 1.0.0 =

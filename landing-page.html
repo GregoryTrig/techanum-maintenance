@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<!--
+  Techanum Maintenance — Landing Page Content
+  URL: https://techanum.com/maintenance/
+  
+  This file contains only the page *content* (no site header or footer).
+  Paste the content of <body> directly into your page builder.
+  All styles are scoped with the .tm-lp- prefix so they never conflict
+  with your theme.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Techanum Maintenance – A Smarter Maintenance Mode for WordPress</title>
+  <meta name="description" content="Techanum Maintenance is a free WordPress plugin that replaces the default maintenance screen with a beautiful, AI-powered page. Supports OpenAI, Google Gemini, Anthropic Claude, and any OpenAI-compatible API." />
+
+  <!-- =========================================================
+       Scoped CSS — safe to embed inside any page builder block
+       ========================================================= -->
+  <style>
+    /* ── Reset & base ───────────────────────────────────────── */
+    .tm-lp-page *,
+    .tm-lp-page *::before,
+    .tm-lp-page *::after { box-sizing: border-box; }
+
+    .tm-lp-page {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   Helvetica, Arial, sans-serif;
+      color: #1a1a2e;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    .tm-lp-page a { color: #0073aa; text-decoration: none; }
+    .tm-lp-page a:hover { text-decoration: underline; }
+
+    /* ── Layout helpers ─────────────────────────────────────── */
+    .tm-container {
+      max-width: 1100px;
+      margin-inline: auto;
+      padding-inline: 24px;
+    }
+
+    .tm-section { padding-block: 72px; }
+    .tm-section--alt { background: #f5f8ff; }
+
+    .tm-section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #0073aa;
+      margin-bottom: 8px;
+    }
+
+    .tm-section-title {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin: 0 0 16px;
+      color: #0d1b2a;
+    }
+
+    .tm-section-subtitle {
+      font-size: 1.125rem;
+      color: #475569;
+      max-width: 640px;
+      margin: 0 0 48px;
+    }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .tm-hero {
+      background: linear-gradient(135deg, #0d1b2a 0%, #1a3a5c 60%, #0073aa 100%);
+      color: #fff;
+      padding-block: 100px 88px;
+      text-align: center;
+    }
+
+    .tm-hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #a5d8ff;
+      margin-bottom: 24px;
+    }
+
+    .tm-hero__title {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin: 0 0 20px;
+      color: #fff;
+    }
+
+    .tm-hero__subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: rgba(255,255,255,0.80);
+      max-width: 680px;
+      margin-inline: auto;
+      margin-bottom: 40px;
+    }
+
+    .tm-hero__ctas {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .tm-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.1s;
+      text-decoration: none;
+    }
+
+    .tm-btn:hover { filter: brightness(1.08); transform: translateY(-1px); text-decoration: none; }
+    .tm-btn:active { transform: translateY(0); }
+
+    .tm-btn--primary {
+      background: #0073aa;
+      color: #fff;
+      border: 2px solid #0073aa;
+    }
+
+    .tm-btn--outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+
+    .tm-btn--outline:hover { border-color: #fff; }
+
+    .tm-btn--green {
+      background: #00a32a;
+      color: #fff;
+      border: 2px solid #00a32a;
+    }
+
+    /* ── Trust bar ───────────────────────────────────────────── */
+    .tm-trust {
+      background: #fff;
+      border-bottom: 1px solid #e8ecf0;
+      padding-block: 18px;
+      text-align: center;
+    }
+
+    .tm-trust__inner {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+
+    .tm-trust__item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .tm-trust__item span { font-size: 1.1rem; }
+
+    /* ── Features grid ───────────────────────────────────────── */
+    .tm-features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-top: 48px;
+    }
+
+    .tm-feature-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 28px 24px;
+      transition: box-shadow 0.2s;
+    }
+
+    .tm-feature-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+
+    .tm-feature-card__icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .tm-feature-card__title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0d1b2a;
+      margin: 0 0 8px;
+    }
+
+    .tm-feature-card__desc {
+      font-size: 0.9rem;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* ── Pricing table ───────────────────────────────────────── */
+    .tm-pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-top: 48px;
+      align-items: start;
+    }
+
+    .tm-plan {
+      background: #fff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: relative;
+    }
+
+    .tm-plan--featured {
+      border-color: #0073aa;
+      box-shadow: 0 0 0 4px rgba(0,115,170,0.08);
+    }
+
+    .tm-plan__badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0073aa;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .tm-plan__name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0 0 4px;
+      color: #0d1b2a;
+    }
+
+    .tm-plan__tagline {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin: 0 0 20px;
+    }
+
+    .tm-plan__price {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #0d1b2a;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .tm-plan__price sup {
+      font-size: 1.1rem;
+      vertical-align: super;
+    }
+
+    .tm-plan__period {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+
+    .tm-plan__divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 20px 0;
+    }
+
+    .tm-plan__features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 28px;
+    }
+
+    .tm-plan__features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: #334155;
+      padding-block: 5px;
+    }
+
+    .tm-plan__features li .tm-check { color: #00a32a; flex-shrink: 0; margin-top: 2px; }
+    .tm-plan__features li .tm-cross { color: #b0b8c4; flex-shrink: 0; margin-top: 2px; }
+
+    .tm-plan__cta { display: block; text-align: center; width: 100%; }
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .tm-faq-list {
+      max-width: 800px;
+      margin-inline: auto;
+    }
+
+    .tm-faq-item {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tm-faq-item:first-child { border-top: 1px solid #e2e8f0; }
+
+    .tm-faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 4px;
+      cursor: pointer;
+      font-size: 1.025rem;
+      font-weight: 600;
+      color: #0d1b2a;
+      list-style: none;
+      user-select: none;
+    }
+
+    .tm-faq-question::-webkit-details-marker { display: none; }
+
+    .tm-faq-question::after {
+      content: "+";
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: #0073aa;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    details[open] > .tm-faq-question::after { content: "−"; }
+
+    .tm-faq-answer {
+      padding: 0 4px 20px;
+      font-size: 0.95rem;
+      color: #475569;
+    }
+
+    .tm-faq-answer p { margin: 0 0 12px; }
+    .tm-faq-answer p:last-child { margin-bottom: 0; }
+    .tm-faq-answer code {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.88em;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Docs / Quick Start ──────────────────────────────────── */
+    .tm-steps {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+      margin: 32px 0 0;
+    }
+
+    .tm-step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .tm-step__num {
+      counter-increment: step-counter;
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0073aa;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tm-step__body { flex: 1; }
+    .tm-step__body h4 { margin: 0 0 6px; font-size: 1rem; color: #0d1b2a; }
+    .tm-step__body p  { margin: 0; font-size: 0.92rem; color: #475569; }
+
+    .tm-callout {
+      background: #eff6ff;
+      border-left: 4px solid #0073aa;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      color: #1e3a5f;
+      margin-top: 28px;
+    }
+
+    .tm-callout strong { color: #0d1b2a; }
+
+    /* ── Support section ─────────────────────────────────────── */
+    .tm-support-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .tm-support-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+
+    .tm-support-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); }
+
+    .tm-support-card__icon { font-size: 2.4rem; margin-bottom: 14px; display: block; }
+    .tm-support-card__title { font-size: 1.05rem; font-weight: 700; margin: 0 0 8px; color: #0d1b2a; }
+    .tm-support-card__desc { font-size: 0.88rem; color: #64748b; margin: 0 0 20px; }
+
+    /* ── Final CTA banner ────────────────────────────────────── */
+    .tm-cta-banner {
+      background: linear-gradient(135deg, #0073aa 0%, #005f8e 100%);
+      color: #fff;
+      text-align: center;
+      padding-block: 72px;
+    }
+
+    .tm-cta-banner__title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      margin: 0 0 16px;
+    }
+
+    .tm-cta-banner__sub {
+      font-size: 1.05rem;
+      opacity: 0.85;
+      margin: 0 0 36px;
+    }
+
+    /* ── Footer strip ────────────────────────────────────────── */
+    .tm-footer {
+      background: #0d1b2a;
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      padding-block: 28px;
+      font-size: 0.85rem;
+    }
+
+    .tm-footer a { color: rgba(255,255,255,0.7); }
+    .tm-footer a:hover { color: #fff; }
+
+    .tm-footer__links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Responsive tweaks ───────────────────────────────────── */
+    @media (max-width: 640px) {
+      .tm-hero { padding-block: 64px 56px; }
+      .tm-section { padding-block: 52px; }
+      .tm-btn { padding: 12px 20px; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+
+<body>
+<!-- ════════════════════════════════════════════════════════════
+     START: Techanum Maintenance Landing Page Content
+     Paste everything inside .tm-lp-page into your page builder.
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="tm-lp-page">
+
+  <!-- ══════════════════════════════════════════════════════════
+       1. HERO / INTRODUCTION
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-hero" aria-labelledby="hero-title">
+    <div class="tm-container">
+
+      <p class="tm-hero__badge">
+        <span>✦</span> Free WordPress Plugin
+      </p>
+
+      <h1 id="hero-title" class="tm-hero__title">
+        Techanum Maintenance<br>
+        A Smarter Maintenance Mode<br>for WordPress
+      </h1>
+
+      <p class="tm-hero__subtitle">
+        Replace the ugly WordPress maintenance screen with a professional,
+        AI&#8209;powered page in seconds &mdash; no coding required.
+      </p>
+
+      <div class="tm-hero__ctas">
+        <a href="https://wordpress.org/plugins/techanum-maintenance/"
+           class="tm-btn tm-btn--primary"
+           target="_blank" rel="noopener noreferrer">
+          ⬇ Download for Free
+        </a>
+        <a href="#pricing" class="tm-btn tm-btn--outline">
+          View Pro Plans ↓
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Trust / social proof bar -->
+  <div class="tm-trust" role="list" aria-label="Plugin highlights">
+    <div class="tm-trust__inner">
+      <div class="tm-trust__item" role="listitem">
+        <span>🆓</span> 100&thinsp;% Free Core
+      </div>
+      <div class="tm-trust__item" role="listitem">
+        <span>🤖</span> Multi-Provider AI
+      </div>
+      <div class="tm-trust__item" role="listitem">
+        <span>🔒</span> HTTP 503 + SEO-Safe
+      </div>
+      <div class="tm-trust__item" role="listitem">
+        <span>🌐</span> Fully Translatable
+      </div>
+      <div class="tm-trust__item" role="listitem">
+        <span>📋</span> WordPress Coding Standards
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       2. FEATURES (FREE VERSION)
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-section" id="features" aria-labelledby="features-title">
+    <div class="tm-container">
+
+      <span class="tm-section-label">Free Features</span>
+      <h2 class="tm-section-title" id="features-title">
+        Everything you need,<br>right out of the box
+      </h2>
+      <p class="tm-section-subtitle">
+        The free version of Techanum Maintenance gives you a fully functional,
+        professional maintenance experience with zero configuration required.
+      </p>
+
+      <div class="tm-features-grid">
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🔧</span>
+          <h3 class="tm-feature-card__title">One-Click Maintenance Toggle</h3>
+          <p class="tm-feature-card__desc">
+            Enable or disable maintenance mode with a single checkbox under
+            <strong>Settings → Techanum Maintenance</strong>. No theme edits,
+            no FTP required.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🖼️</span>
+          <h3 class="tm-feature-card__title">Custom Logo Upload</h3>
+          <p class="tm-feature-card__desc">
+            Upload your own logo via the WordPress Media Library to replace
+            the default wrench icon. Your brand stays front and centre even
+            while the site is offline.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">✏️</span>
+          <h3 class="tm-feature-card__title">Custom Maintenance Message</h3>
+          <p class="tm-feature-card__desc">
+            Write your own maintenance message whenever you need full control.
+            Your custom text always overrides the AI-generated one.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🤖</span>
+          <h3 class="tm-feature-card__title">AI-Generated Messages</h3>
+          <p class="tm-feature-card__desc">
+            Connect any supported AI provider &mdash; OpenAI, Google Gemini,
+            Anthropic Claude, AI/ML API, Eden AI, SharpAPI, or any
+            OpenAI-compatible endpoint (OpenRouter, Ollama, LM Studio&hellip;).
+            Messages are cached for 1&nbsp;hour to minimise API calls.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🔕</span>
+          <h3 class="tm-feature-card__title">Hide Admin Notices</h3>
+          <p class="tm-feature-card__desc">
+            Silently suppress WordPress admin notices for selected user roles
+            (editors, shop managers, etc.), keeping the dashboard clean for
+            people who don&#8217;t need to see plugin update banners.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">👥</span>
+          <h3 class="tm-feature-card__title">Role-Based Bypass</h3>
+          <p class="tm-feature-card__desc">
+            Choose which user roles can still access the live site during
+            maintenance. Administrators are always excluded automatically &mdash;
+            no extra configuration needed.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">📡</span>
+          <h3 class="tm-feature-card__title">Proper HTTP 503 Response</h3>
+          <p class="tm-feature-card__desc">
+            The maintenance page returns a <code>503 Service Unavailable</code>
+            status with a <code>Retry-After: 3600</code> header, so search engines
+            handle your downtime correctly and don&#8217;t penalise your rankings.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">📱</span>
+          <h3 class="tm-feature-card__title">Responsive, Minimal Design</h3>
+          <p class="tm-feature-card__desc">
+            The built-in maintenance template looks great on every screen size,
+            from desktop monitors to smartphones, without any additional CSS
+            work on your part.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">💾</span>
+          <h3 class="tm-feature-card__title">Settings Preserved on Deactivation</h3>
+          <p class="tm-feature-card__desc">
+            Deactivating the plugin only turns maintenance mode <em>off</em>
+            &mdash; it never deletes your logo, message, API key, or role
+            configuration. Re-activate and everything is exactly as you left it.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🌍</span>
+          <h3 class="tm-feature-card__title">Fully Internationalized</h3>
+          <p class="tm-feature-card__desc">
+            Every user-facing string is wrapped in translation functions and a
+            <code>.pot</code> file is included. Translate the plugin into any
+            language with your favourite tool.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🧹</span>
+          <h3 class="tm-feature-card__title">Clean, No-Bloat Settings Page</h3>
+          <p class="tm-feature-card__desc">
+            A single, well-organised settings page under <strong>Settings →
+            Techanum Maintenance</strong>. Three clear sections; no unnecessary
+            menu clutter or admin-bar additions.
+          </p>
+        </article>
+
+        <article class="tm-feature-card">
+          <span class="tm-feature-card__icon">🔑</span>
+          <h3 class="tm-feature-card__title">wp-config.php API Key Support</h3>
+          <p class="tm-feature-card__desc">
+            Prefer to keep secrets out of the database? Define the constant
+            <code>TECHANUM_ANTIGRAVITY_API_KEY</code> in <code>wp-config.php</code>
+            as a secure fallback. The settings-page value always takes priority.
+          </p>
+        </article>
+
+      </div><!-- .tm-features-grid -->
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       3. PRO PLANS COMPARISON TABLE
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-section tm-section--alt" id="pricing" aria-labelledby="pricing-title">
+    <div class="tm-container">
+
+      <span class="tm-section-label">Pro Plans</span>
+      <h2 class="tm-section-title" id="pricing-title">
+        Simple, transparent pricing
+      </h2>
+      <p class="tm-section-subtitle">
+        Start free forever. Upgrade when you need scheduling, premium templates,
+        or email capture — and downgrade any time.
+      </p>
+
+      <div class="tm-pricing-grid">
+
+        <!-- FREE -->
+        <div class="tm-plan" aria-labelledby="plan-free-name">
+          <p class="tm-plan__name" id="plan-free-name">Free</p>
+          <p class="tm-plan__tagline">Perfect for personal sites &amp; testing</p>
+          <div class="tm-plan__price">€0</div>
+          <p class="tm-plan__period">forever — no credit card needed</p>
+
+          <hr class="tm-plan__divider" />
+
+          <ul class="tm-plan__features">
+            <li><span class="tm-check">✔</span> One-click maintenance toggle</li>
+            <li><span class="tm-check">✔</span> Custom logo upload</li>
+            <li><span class="tm-check">✔</span> Custom maintenance message</li>
+            <li><span class="tm-check">✔</span> AI-generated messages (all providers)</li>
+            <li><span class="tm-check">✔</span> Role-based bypass</li>
+            <li><span class="tm-check">✔</span> Hide admin notices per role</li>
+            <li><span class="tm-check">✔</span> HTTP 503 + Retry-After header</li>
+            <li><span class="tm-check">✔</span> 1 built-in template</li>
+            <li><span class="tm-cross">✗</span> Scheduled maintenance windows</li>
+            <li><span class="tm-cross">✗</span> Countdown timer</li>
+            <li><span class="tm-cross">✗</span> Email capture / subscriber list</li>
+            <li><span class="tm-cross">✗</span> Premium templates</li>
+            <li><span class="tm-check">✔</span> Community support (WordPress.org forum)</li>
+          </ul>
+
+          <a href="https://wordpress.org/plugins/techanum-maintenance/"
+             class="tm-btn tm-btn--green tm-plan__cta"
+             target="_blank" rel="noopener noreferrer">
+            Download Free
+          </a>
+        </div>
+
+        <!-- SOLO PRO -->
+        <div class="tm-plan tm-plan--featured" aria-labelledby="plan-solo-name">
+          <span class="tm-plan__badge">Most Popular</span>
+          <p class="tm-plan__name" id="plan-solo-name">Solo Pro</p>
+          <p class="tm-plan__tagline">For freelancers &amp; single-site owners</p>
+          <div class="tm-plan__price"><sup>€</sup>39</div>
+          <p class="tm-plan__period">per year &mdash; 1 site licence</p>
+
+          <hr class="tm-plan__divider" />
+
+          <ul class="tm-plan__features">
+            <li><span class="tm-check">✔</span> Everything in Free</li>
+            <li><span class="tm-check">✔</span> Scheduled maintenance windows</li>
+            <li><span class="tm-check">✔</span> Automatic on/off by date &amp; time</li>
+            <li><span class="tm-check">✔</span> Live countdown timer</li>
+            <li><span class="tm-check">✔</span> IP whitelist (bypass by IP address)</li>
+            <li><span class="tm-check">✔</span> 1 premium page template</li>
+            <li><span class="tm-cross">✗</span> Email capture &amp; subscriber list</li>
+            <li><span class="tm-cross">✗</span> Mailchimp / MailPoet integration</li>
+            <li><span class="tm-check">✔</span> Priority email support</li>
+          </ul>
+
+          <a href="https://techanum.com/maintenance/#pricing"
+             class="tm-btn tm-btn--primary tm-plan__cta">
+            Get Solo Pro →
+          </a>
+        </div>
+
+        <!-- BUSINESS -->
+        <div class="tm-plan" aria-labelledby="plan-business-name">
+          <p class="tm-plan__name" id="plan-business-name">Business</p>
+          <p class="tm-plan__tagline">For agencies &amp; unlimited sites</p>
+          <div class="tm-plan__price"><sup>€</sup>69</div>
+          <p class="tm-plan__period">per year &mdash; unlimited site licences</p>
+
+          <hr class="tm-plan__divider" />
+
+          <ul class="tm-plan__features">
+            <li><span class="tm-check">✔</span> Everything in Solo Pro</li>
+            <li><span class="tm-check">✔</span> Unlimited site licences</li>
+            <li><span class="tm-check">✔</span> 10 premium page templates</li>
+            <li><span class="tm-check">✔</span> Email capture form on maintenance page</li>
+            <li><span class="tm-check">✔</span> Mailchimp integration</li>
+            <li><span class="tm-check">✔</span> MailPoet integration</li>
+            <li><span class="tm-check">✔</span> Notify subscribers when site is back</li>
+            <li><span class="tm-check">✔</span> Social media links on maintenance page</li>
+            <li><span class="tm-check">✔</span> White-label mode (remove Techanum branding)</li>
+            <li><span class="tm-check">✔</span> VIP support (dedicated Slack channel)</li>
+          </ul>
+
+          <a href="https://techanum.com/maintenance/#pricing"
+             class="tm-btn tm-btn--primary tm-plan__cta">
+            Get Business →
+          </a>
+        </div>
+
+      </div><!-- .tm-pricing-grid -->
+
+      <p style="text-align:center; margin-top:32px; color:#64748b; font-size:0.9rem;">
+        All Pro plans include a <strong>30-day money-back guarantee</strong>.
+        Prices shown exclude applicable taxes. Annual billing only.
+      </p>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       4. FAQ
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-section" id="faq" aria-labelledby="faq-title">
+    <div class="tm-container">
+
+      <span class="tm-section-label">FAQ</span>
+      <h2 class="tm-section-title" id="faq-title">
+        Frequently asked questions
+      </h2>
+      <p class="tm-section-subtitle">
+        Can&#8217;t find your answer here?
+        <a href="https://wordpress.org/support/plugin/techanum-maintenance/"
+           target="_blank" rel="noopener noreferrer">Ask on the WordPress.org forum →</a>
+      </p>
+
+      <div class="tm-faq-list">
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            How do I get an API key for AI messages?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>It depends on which provider you want to use:</p>
+            <p>
+              <strong>Google Gemini (free tier available):</strong> Visit
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>,
+              sign in with your Google account, and click <em>Create API key</em>.
+              Your key will start with <code>AIza</code>.
+            </p>
+            <p>
+              <strong>OpenAI (ChatGPT):</strong> Sign in at
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">platform.openai.com</a>
+              and create a new secret key. Your key will start with <code>sk-</code>.
+            </p>
+            <p>
+              <strong>Anthropic (Claude):</strong> Create an account at
+              <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">console.anthropic.com</a>
+              and generate an API key. Your key will start with <code>sk-ant-</code>.
+            </p>
+            <p>
+              Once you have your key, go to <strong>Settings → Techanum Maintenance → API Settings</strong>,
+              paste it in the <em>API Key</em> field, and save. The plugin
+              auto-detects the provider based on the key prefix, so you can leave
+              the <em>AI Provider</em> dropdown on <em>Auto-detect</em>.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Does it work with LM Studio, Ollama, or OpenRouter (local/custom LLMs)?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              Yes. Select <strong>Custom (OpenAI-compatible)</strong> from the
+              <em>AI Provider</em> dropdown, then enter:
+            </p>
+            <p>
+              &bull; <strong>Custom Base URL</strong> — e.g.
+              <code>http://localhost:1234/v1</code> for LM Studio,
+              <code>http://localhost:11434/v1</code> for Ollama, or
+              <code>https://openrouter.ai/api/v1</code> for OpenRouter.
+            </p>
+            <p>
+              &bull; <strong>Custom Model</strong> — the model identifier your
+              endpoint expects, e.g. <code>llama3</code>, <code>mistral</code>,
+              or <code>openai/gpt-4o-mini</code>.
+            </p>
+            <p>
+              The plugin appends <code>/chat/completions</code> automatically
+              if the URL doesn&#8217;t already end with that path. For local
+              models that don&#8217;t require authentication, you can enter any
+              placeholder in the <em>API Key</em> field.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Can I use my Anthropic (Claude) API key?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              Absolutely. Anthropic is a first-class supported provider.
+              The plugin sends your prompt to the
+              <strong>Anthropic Messages API</strong>
+              (<code>claude-3-haiku</code> by default, with automatic fallback
+              to <code>claude-3-5-haiku</code> if needed).
+            </p>
+            <p>
+              Either leave <em>AI Provider</em> on <strong>Auto-detect</strong>
+              (the plugin recognises the <code>sk-ant-</code> prefix) or
+              explicitly select <strong>Anthropic (Claude)</strong> from the
+              dropdown. Paste your API key and save.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Will my site still work normally during maintenance mode?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              Yes — <strong>only non-logged-in visitors</strong> (and logged-in
+              users whose roles are not on the bypass list) will see the
+              maintenance page. Administrators are always bypassed automatically.
+            </p>
+            <p>
+              Your WordPress admin dashboard, the REST API, and the WP-Cron
+              scheduler all continue to function as normal behind the scenes.
+              The maintenance page simply intercepts front-end requests and
+              returns a proper <code>503 Service Unavailable</code> response.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            How do I schedule automatic maintenance windows?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              Scheduled maintenance windows are a <strong>Pro feature</strong>.
+              With Solo Pro or Business you can set a precise start date/time and
+              end date/time — the plugin will enable the maintenance page
+              automatically at the start time and turn it off again at the end
+              time, with no manual intervention required.
+            </p>
+            <p>
+              The free version requires you to toggle maintenance mode on and off
+              manually via the settings page.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Is there a free trial for Pro?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              There is no time-limited trial, but all Pro plans come with a
+              <strong>30-day money-back guarantee</strong>. If you&#8217;re not
+              satisfied for any reason within 30 days of purchase, contact us and
+              we&#8217;ll issue a full refund — no questions asked.
+            </p>
+            <p>
+              You can also explore all core features completely free before
+              deciding to upgrade.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            How do I contact support?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              <strong>Free users:</strong> Post in the
+              <a href="https://wordpress.org/support/plugin/techanum-maintenance/"
+                 target="_blank" rel="noopener noreferrer">WordPress.org support forum</a>.
+              We monitor it regularly and aim to respond within 48 hours.
+            </p>
+            <p>
+              <strong>Solo Pro users:</strong> Priority email support via the
+              contact form at
+              <a href="https://techanum.com/contact/" target="_blank" rel="noopener noreferrer">techanum.com/contact</a>.
+              Typical response within 24 hours on business days.
+            </p>
+            <p>
+              <strong>Business users:</strong> VIP support via a dedicated
+              Slack channel. Fastest path to a resolution for time-sensitive issues.
+            </p>
+            <p>
+              You can also open a bug report or feature request on
+              <a href="https://github.com/GregoryTrig/techanum-maintenance/issues"
+                 target="_blank" rel="noopener noreferrer">GitHub Issues</a>
+              regardless of your plan.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            What happens if the AI call fails?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              The plugin <strong>always has a fallback</strong>. If no API key
+              is configured, or if the API call fails for any reason (network
+              timeout, rate limit, invalid key, etc.), visitors see the
+              built-in fallback message:
+              <em>&#8220;We are performing scheduled maintenance. We will be back soon!&#8221;</em>
+            </p>
+            <p>
+              You can also override this at any time by entering your own text
+              in the <em>Custom Maintenance Message</em> field — your custom
+              message always takes priority over the AI-generated one.
+            </p>
+            <p>
+              The failed call is <strong>not</strong> cached, so the next page
+              load will retry the API automatically rather than serving a stale
+              fallback for the full hour.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Will I lose my settings if I deactivate the plugin?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              No. Deactivating the plugin only turns off maintenance mode — it
+              does <strong>not</strong> delete any saved settings (logo, message,
+              API key, role configuration). When you re-activate, everything is
+              exactly as you left it.
+            </p>
+            <p>
+              If you want to remove all plugin data, you must delete the plugin
+              entirely. A one-click &#8220;Delete all data on uninstall&#8221;
+              option is planned for a future Pro release.
+            </p>
+          </div>
+        </details>
+
+        <details class="tm-faq-item">
+          <summary class="tm-faq-question">
+            Can I define the API key in wp-config.php instead of the settings page?
+          </summary>
+          <div class="tm-faq-answer">
+            <p>
+              Yes. As a secure alternative to storing the key in the database,
+              define the following constant in your <code>wp-config.php</code>:
+            </p>
+            <p>
+              <code>define( 'TECHANUM_ANTIGRAVITY_API_KEY', 'your-api-key-here' );</code>
+            </p>
+            <p>
+              The settings-page value always takes priority; the constant is only
+              used as a fallback when the settings field is empty. This is useful
+              on staging/production environments where you manage secrets via
+              server configuration rather than the database.
+            </p>
+          </div>
+        </details>
+
+      </div><!-- .tm-faq-list -->
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       5. DOCUMENTATION — QUICK START
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-section tm-section--alt" id="docs" aria-labelledby="docs-title">
+    <div class="tm-container">
+
+      <span class="tm-section-label">Documentation</span>
+      <h2 class="tm-section-title" id="docs-title">
+        Quick Start Guide
+      </h2>
+      <p class="tm-section-subtitle">
+        Get your professional maintenance page live in under 5 minutes.
+        No coding required.
+      </p>
+
+      <ol class="tm-steps" aria-label="Installation steps">
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">1</div>
+          <div class="tm-step__body">
+            <h4>Install the plugin</h4>
+            <p>
+              In your WordPress admin, go to <strong>Plugins → Add New Plugin</strong>
+              and search for <em>Techanum Maintenance</em>. Click
+              <em>Install Now</em>. Alternatively, download the
+              <code>.zip</code> file from
+              <a href="https://wordpress.org/plugins/techanum-maintenance/"
+                 target="_blank" rel="noopener noreferrer">WordPress.org</a>
+              and upload it via <strong>Plugins → Add New → Upload Plugin</strong>.
+            </p>
+          </div>
+        </li>
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">2</div>
+          <div class="tm-step__body">
+            <h4>Activate the plugin</h4>
+            <p>
+              Click <em>Activate Plugin</em> on the installation confirmation
+              screen, or find <em>Techanum Maintenance</em> in your Plugins list
+              and click <em>Activate</em>.
+            </p>
+          </div>
+        </li>
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">3</div>
+          <div class="tm-step__body">
+            <h4>Open the settings page</h4>
+            <p>
+              Navigate to <strong>Settings → Techanum Maintenance</strong> in
+              your WordPress admin menu.
+            </p>
+          </div>
+        </li>
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">4</div>
+          <div class="tm-step__body">
+            <h4>Enable maintenance mode</h4>
+            <p>
+              Under the <em>Maintenance Page</em> section, tick the
+              <strong>Enable Maintenance Page</strong> checkbox and click
+              <em>Save Settings</em>. Your site is now in maintenance mode.
+              Open it in a private/incognito browser window to preview what
+              visitors will see.
+            </p>
+          </div>
+        </li>
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">5</div>
+          <div class="tm-step__body">
+            <h4>Customise your maintenance page</h4>
+            <p>
+              Still on the settings page, you can:
+              <br>&bull; Click <em>Upload Logo</em> to add your own branding.
+              <br>&bull; Type a message in the <em>Custom Maintenance Message</em>
+              textarea.
+              <br>&bull; Check any roles under <em>Excluded Roles</em> that should
+              still see the live site (e.g. Editor, Shop Manager).
+              <br>&bull; Select roles under <em>Admin Notices Management</em>
+              to suppress dashboard clutter for non-admin users.
+            </p>
+          </div>
+        </li>
+
+        <li class="tm-step">
+          <div class="tm-step__num" aria-hidden="true">6</div>
+          <div class="tm-step__body">
+            <h4>(Optional) Add an AI API key and generate a message</h4>
+            <p>
+              Scroll to the <em>API Settings</em> section. Choose your provider
+              from the <em>AI Provider</em> dropdown (or leave it on
+              <strong>Auto-detect</strong>), paste your API key, and save. Then
+              scroll back up to the <em>Custom Maintenance Message</em> field and
+              click <strong>Generate with AI</strong>. The plugin will call your
+              chosen AI, display the generated message in the textarea, and cache
+              it for 1 hour going forward.
+            </p>
+          </div>
+        </li>
+
+      </ol>
+
+      <div class="tm-callout" role="note">
+        <strong>🔌 Using a local or custom AI endpoint?</strong><br>
+        Select <em>Custom (OpenAI-compatible)</em> from the <em>AI Provider</em>
+        dropdown. Enter your base URL (e.g.
+        <code>http://localhost:1234/v1</code> for LM&nbsp;Studio,
+        <code>http://localhost:11434/v1</code> for Ollama, or
+        <code>https://openrouter.ai/api/v1</code> for OpenRouter) and the model
+        name your endpoint expects (e.g. <code>llama3</code>,
+        <code>mistral</code>, <code>openai/gpt-4o-mini</code>). The plugin
+        appends <code>/chat/completions</code> automatically.
+        This makes Techanum Maintenance compatible with virtually any
+        OpenAI-compatible inference server, cloud or local.
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       6. SUPPORT & COMMUNITY
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-section" id="support" aria-labelledby="support-title">
+    <div class="tm-container">
+
+      <span class="tm-section-label">Support &amp; Community</span>
+      <h2 class="tm-section-title" id="support-title">
+        We&#8217;ve got you covered
+      </h2>
+      <p class="tm-section-subtitle">
+        Whether you hit a bug, have a feature idea, or just need a quick
+        answer, there&#8217;s a support channel that&#8217;s right for you.
+      </p>
+
+      <div class="tm-support-grid">
+
+        <div class="tm-support-card">
+          <span class="tm-support-card__icon">💬</span>
+          <h3 class="tm-support-card__title">WordPress.org Forum</h3>
+          <p class="tm-support-card__desc">
+            Ask questions, report bugs, and read existing threads from the
+            community. The best place for free-tier users to get help.
+          </p>
+          <a href="https://wordpress.org/support/plugin/techanum-maintenance/"
+             class="tm-btn tm-btn--primary"
+             target="_blank" rel="noopener noreferrer">
+            Open Forum →
+          </a>
+        </div>
+
+        <div class="tm-support-card">
+          <span class="tm-support-card__icon">🐛</span>
+          <h3 class="tm-support-card__title">GitHub Issues</h3>
+          <p class="tm-support-card__desc">
+            Found a bug? Have a feature request? Open an issue on GitHub.
+            The source code is fully open under the GPLv3 licence — forks
+            and pull requests are always welcome.
+          </p>
+          <a href="https://github.com/GregoryTrig/techanum-maintenance/issues"
+             class="tm-btn tm-btn--primary"
+             target="_blank" rel="noopener noreferrer">
+            Open an Issue →
+          </a>
+        </div>
+
+        <div class="tm-support-card">
+          <span class="tm-support-card__icon">✉️</span>
+          <h3 class="tm-support-card__title">Email &amp; Pro Support</h3>
+          <p class="tm-support-card__desc">
+            Solo Pro and Business customers receive priority email support.
+            Use the contact form below for pre-sales questions or
+            licensing enquiries.
+          </p>
+          <a href="https://techanum.com/contact/"
+             class="tm-btn tm-btn--primary"
+             target="_blank" rel="noopener noreferrer">
+            Contact Us →
+          </a>
+        </div>
+
+        <div class="tm-support-card">
+          <span class="tm-support-card__icon">⭐</span>
+          <h3 class="tm-support-card__title">Leave a Review</h3>
+          <p class="tm-support-card__desc">
+            If Techanum Maintenance saves you time, a five-star review on
+            WordPress.org helps other site owners discover it — and it means
+            a lot to our small team.
+          </p>
+          <a href="https://wordpress.org/support/plugin/techanum-maintenance/reviews/"
+             class="tm-btn tm-btn--primary"
+             target="_blank" rel="noopener noreferrer">
+            Write a Review →
+          </a>
+        </div>
+
+      </div><!-- .tm-support-grid -->
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FINAL CTA BANNER
+       ═══════════════════════════════════════════════════════ -->
+  <section class="tm-cta-banner" aria-labelledby="cta-title">
+    <div class="tm-container">
+
+      <h2 class="tm-cta-banner__title" id="cta-title">
+        Ready to replace that ugly maintenance screen?
+      </h2>
+      <p class="tm-cta-banner__sub">
+        Install Techanum Maintenance for free and have a professional page
+        live in under 5 minutes.
+      </p>
+      <div class="tm-hero__ctas">
+        <a href="https://wordpress.org/plugins/techanum-maintenance/"
+           class="tm-btn tm-btn--green"
+           target="_blank" rel="noopener noreferrer">
+          ⬇ Download for Free
+        </a>
+        <a href="#pricing" class="tm-btn tm-btn--outline">
+          Compare Plans ↓
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       7. FOOTER STRIP
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="tm-footer" role="contentinfo">
+    <div class="tm-container">
+      <nav class="tm-footer__links" aria-label="Footer links">
+        <a href="https://wordpress.org/plugins/techanum-maintenance/"
+           target="_blank" rel="noopener noreferrer">WordPress.org</a>
+        <a href="https://github.com/GregoryTrig/techanum-maintenance"
+           target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://techanum.com/contact/">Contact</a>
+        <a href="https://techanum.com/privacy-policy/">Privacy Policy</a>
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html"
+           target="_blank" rel="noopener noreferrer">GPLv3 Licence</a>
+      </nav>
+      <p>
+        &copy; <span id="tm-year"></span> Techanum. All rights reserved.
+        Made with ❤️ by <a href="https://techanum.com/">Techanum</a>.
+      </p>
+      <script>
+        // Inline year script — no jQuery dependency
+        (function(){
+          var el = document.getElementById('tm-year');
+          if (el) el.textContent = new Date().getFullYear();
+        })();
+      </script>
+    </div>
+  </footer>
+
+</div><!-- .tm-lp-page -->
+
+<!-- ════════════════════════════════════════════════════════════
+     END: Techanum Maintenance Landing Page Content
+     ════════════════════════════════════════════════════════════ -->
+
+</body>
+</html>

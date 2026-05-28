@@ -71,13 +71,14 @@ class Techanum_AI_Router {
 
 	// ── Provider identifiers ───────────────────────────────────────────────
 
-	const PROVIDER_AUTO    = 'auto';
-	const PROVIDER_OPENAI  = 'openai';
-	const PROVIDER_GEMINI  = 'gemini';
-	const PROVIDER_SHARP   = 'sharpapi';
-	const PROVIDER_EDEN    = 'edenai';
-	const PROVIDER_AIML    = 'aimlapi';
-	const PROVIDER_CUSTOM  = 'custom';
+	const PROVIDER_AUTO      = 'auto';
+	const PROVIDER_OPENAI    = 'openai';
+	const PROVIDER_GEMINI    = 'gemini';
+	const PROVIDER_SHARP     = 'sharpapi';
+	const PROVIDER_EDEN      = 'edenai';
+	const PROVIDER_AIML      = 'aimlapi';
+	const PROVIDER_CUSTOM    = 'custom';
+	const PROVIDER_ANTHROPIC = 'anthropic';
 
 	// ── Base URLs ──────────────────────────────────────────────────────────
 
@@ -94,6 +95,16 @@ class Techanum_AI_Router {
 		self::PROVIDER_OPENAI => 'https://api.openai.com',
 		self::PROVIDER_AIML   => 'https://api.aimlapi.com',
 	);
+
+	/**
+	 * Anthropic Messages API endpoint.
+	 *
+	 * Uses a dedicated endpoint and authentication scheme (x-api-key header
+	 * plus anthropic-version header) rather than the OpenAI-compatible format.
+	 *
+	 * @var string
+	 */
+	private $anthropic_url = 'https://api.anthropic.com/v1/messages';
 
 	/**
 	 * Eden AI chat endpoint (uses its own path structure, not /v1/chat/completions).
@@ -231,9 +242,11 @@ class Techanum_AI_Router {
 	 *
 	 * When set to "auto" (the default), the API key prefix is inspected:
 	 *
-	 *  - Starts with "sk-"  → OpenAI
-	 *  - Starts with "AIza" → Google Gemini
-	 *  - All other keys     → AI/ML API (OpenAI-compatible, broadest support)
+	 *  - Starts with "sk-ant-"           → Anthropic (Claude) — standard key format
+	 *  - Starts with "sk-ant_" or "sk_"  → Anthropic (Claude) — alternate/legacy format
+	 *  - Starts with "sk-" (other)       → OpenAI
+	 *  - Starts with "AIza"              → Google Gemini
+	 *  - All other keys                  → AI/ML API (OpenAI-compatible, broadest support)
 	 *
 	 * SharpAPI and Eden AI keys do not have a universally recognisable
 	 * prefix, so users who hold those keys should select the provider
@@ -251,7 +264,7 @@ class Techanum_AI_Router {
 			return self::PROVIDER_CUSTOM;
 		}
 
-		// Any other explicit provider selected (openai, gemini, sharpapi, edenai, aimlapi).
+		// Any other explicit provider selected (openai, gemini, sharpapi, edenai, aimlapi, anthropic).
 		if ( self::PROVIDER_AUTO !== $saved ) {
 			$provider = sanitize_key( $saved );
 			error_log( 'Techanum Maintenance [Router] - Explicit provider selected: ' . $provider );
@@ -262,8 +275,20 @@ class Techanum_AI_Router {
 		// Trim the key defensively — leading/trailing whitespace would defeat strpos().
 		$trimmed_key = trim( $api_key );
 
-		error_log( 'Techanum Maintenance [Router] - Auto-detect: key prefix is "' . substr( $trimmed_key, 0, 6 ) . '..." (first 6 chars).' );
+		error_log( 'Techanum Maintenance [Router] - Auto-detect: key prefix is "' . substr( $trimmed_key, 0, 10 ) . '..." (first 10 chars).' );
 
+		// Anthropic keys: standard format is "sk-ant-api03-..." (starts with "sk-ant-"),
+		// alternate/legacy formats use "sk-ant_" or a bare "sk_" prefix (contains "_").
+		if (
+			0 === strpos( $trimmed_key, 'sk-ant-' )
+			|| 0 === strpos( $trimmed_key, 'sk-ant_' )
+			|| ( 0 === strpos( $trimmed_key, 'sk_' ) && false !== strpos( $trimmed_key, '_' ) )
+		) {
+			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: anthropic (key matches Anthropic key format).' );
+			return self::PROVIDER_ANTHROPIC;
+		}
+
+		// OpenAI keys start with "sk-" (but not "sk-ant-" which was caught above).
 		if ( 0 === strpos( $trimmed_key, 'sk-' ) ) {
 			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: openai (key starts with sk-).' );
 			return self::PROVIDER_OPENAI;
@@ -275,7 +300,7 @@ class Techanum_AI_Router {
 		}
 
 		// Default fallback for unrecognised key formats.
-		error_log( 'Techanum Maintenance [Router] - Auto-detect: unrecognised key prefix (not sk- or AIza); defaulting to aimlapi.' );
+		error_log( 'Techanum Maintenance [Router] - Auto-detect: unrecognised key prefix; defaulting to aimlapi.' );
 		return self::PROVIDER_AIML;
 	}
 
@@ -306,12 +331,114 @@ class Techanum_AI_Router {
 			return $this->call_custom( $api_key, $prompt );
 		}
 
+		if ( self::PROVIDER_ANTHROPIC === $provider ) {
+			return $this->call_anthropic( $api_key, $prompt );
+		}
+
 		// OpenAI and AI/ML API share the OpenAI-compatible /v1/chat/completions format.
 		$base_url = isset( $this->base_urls[ $provider ] )
 			? $this->base_urls[ $provider ]
 			: $this->base_urls[ self::PROVIDER_AIML ];
 
 		return $this->call_openai_compatible( $api_key, $base_url, $provider, $prompt );
+	}
+
+	// ── Anthropic (Claude) ─────────────────────────────────────────────────
+
+	/**
+	 * Send a POST request to the Anthropic Messages API.
+	 *
+	 * Endpoint : https://api.anthropic.com/v1/messages
+	 * Auth     : x-api-key header (NOT Authorization: Bearer).
+	 * Docs     : https://docs.anthropic.com/en/api/messages
+	 * Response : $data['content'][0]['text']
+	 *
+	 * Tries claude-3-haiku-20240307 first (cheapest / fastest); if that model
+	 * is not available, falls back to claude-3-5-haiku-20241022 automatically.
+	 *
+	 * @param string $api_key The Anthropic API key (starts with "sk-ant-").
+	 * @param string $prompt  The prompt to send.
+	 * @return string|false Generated text or false on failure.
+	 */
+	private function call_anthropic( $api_key, $prompt ) {
+		// Primary model first, then fallback.
+		$models = array( 'claude-3-haiku-20240307', 'claude-3-5-haiku-20241022' );
+
+		foreach ( $models as $model ) {
+			error_log( 'Techanum Maintenance [anthropic] - Sending request with model "' . $model . '".' );
+
+			$body = wp_json_encode(
+				array(
+					'model'      => $model,
+					'max_tokens' => 200,
+					'messages'   => array(
+						array(
+							'role'    => 'user',
+							'content' => $prompt,
+						),
+					),
+				)
+			);
+
+			if ( false === $body ) {
+				error_log( 'Techanum Maintenance [anthropic] - Failed to JSON-encode request body for model ' . $model . '.' );
+				return false;
+			}
+
+			$response = wp_remote_post(
+				$this->anthropic_url,
+				array(
+					'headers' => array(
+						'Content-Type'      => 'application/json',
+						'x-api-key'         => $api_key,
+						'anthropic-version' => '2023-06-01',
+					),
+					'body'    => $body,
+					'timeout' => 20,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				error_log( 'Techanum Maintenance [anthropic] - Network error (model: ' . $model . '): ' . $response->get_error_message() );
+				return false;
+			}
+
+			$code = wp_remote_retrieve_response_code( $response );
+			$raw  = wp_remote_retrieve_body( $response );
+
+			// 404 or 400 with "not_found_error" typically means the model is unavailable — try next.
+			if ( 404 === (int) $code ) {
+				error_log( 'Techanum Maintenance [anthropic] - HTTP 404 for model "' . $model . '" (not found); trying fallback. Body: ' . $raw );
+				continue;
+			}
+
+			if ( 200 !== (int) $code ) {
+				error_log( 'Techanum Maintenance [anthropic] - HTTP ' . $code . ' (model: ' . $model . ') | Response body: ' . $raw );
+				return false;
+			}
+
+			$data = json_decode( $raw, true );
+
+			if ( JSON_ERROR_NONE !== json_last_error() ) {
+				error_log( 'Techanum Maintenance [anthropic] - JSON decode error (model: ' . $model . '): ' . json_last_error_msg() . ' | Raw: ' . $raw );
+				return false;
+			}
+
+			if (
+				isset( $data['content'][0]['text'] )
+				&& '' !== trim( $data['content'][0]['text'] )
+			) {
+				$text = sanitize_text_field( $data['content'][0]['text'] );
+				error_log( 'Techanum Maintenance [anthropic] - Success (model: ' . $model . '). Message length: ' . strlen( $text ) . ' chars.' );
+				return $text;
+			}
+
+			error_log( 'Techanum Maintenance [anthropic] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
+			return false;
+		}
+
+		error_log( 'Techanum Maintenance [anthropic] - All models exhausted. Returning false.' );
+		return false;
 	}
 
 	// ── Google Gemini ──────────────────────────────────────────────────────

@@ -3,7 +3,7 @@
  * Techanum Maintenance Settings Page
  *
  * Handles the plugin settings page, settings registration, sanitization,
- * media uploader integration and the Pro teaser box.
+ * and media uploader integration.
  *
  * @package TechanumMaintenance
  * @license GPL-3.0-or-later
@@ -619,13 +619,14 @@ class Techanum_Maintenance_Settings {
 		$current = get_option( 'techanum_maintenance_ai_provider', 'auto' );
 
 		$providers = array(
-			'auto'     => __( 'Auto-detect (recommended)', 'techanum-maintenance' ),
-			'openai'   => __( 'OpenAI (ChatGPT)', 'techanum-maintenance' ),
-			'gemini'   => __( 'Google Gemini', 'techanum-maintenance' ),
-			'sharpapi' => __( 'SharpAPI', 'techanum-maintenance' ),
-			'edenai'   => __( 'Eden AI', 'techanum-maintenance' ),
-			'aimlapi'  => __( 'AI/ML API', 'techanum-maintenance' ),
-			'custom'   => __( 'Custom (OpenAI-compatible)', 'techanum-maintenance' ),
+			'auto'      => __( 'Auto-detect (recommended)', 'techanum-maintenance' ),
+			'openai'    => __( 'OpenAI (ChatGPT)', 'techanum-maintenance' ),
+			'gemini'    => __( 'Google Gemini', 'techanum-maintenance' ),
+			'anthropic' => __( 'Anthropic (Claude)', 'techanum-maintenance' ),
+			'sharpapi'  => __( 'SharpAPI', 'techanum-maintenance' ),
+			'edenai'    => __( 'Eden AI', 'techanum-maintenance' ),
+			'aimlapi'   => __( 'AI/ML API', 'techanum-maintenance' ),
+			'custom'    => __( 'Custom (OpenAI-compatible)', 'techanum-maintenance' ),
 		);
 		?>
 		<select
@@ -639,7 +640,7 @@ class Techanum_Maintenance_Settings {
 			<?php endforeach; ?>
 		</select>
 		<p class="description">
-			<?php esc_html_e( 'Select your AI provider. "Auto-detect" identifies OpenAI keys (starting with "sk-") and Google Gemini keys (starting with "AIza") automatically; all other keys default to AI/ML API. If you use SharpAPI or Eden AI, select the matching option explicitly. Choose "Custom" to connect to any OpenAI-compatible API (OpenRouter, Together AI, Ollama, etc.)', 'techanum-maintenance' ); ?>
+			<?php esc_html_e( 'Select your AI provider. "Auto-detect" identifies Anthropic keys (starting with "sk-ant-"), OpenAI keys (starting with "sk-"), and Google Gemini keys (starting with "AIza") automatically; all other keys default to AI/ML API. If you use SharpAPI or Eden AI, select the matching option explicitly. Choose "Custom" to connect to any OpenAI-compatible API (OpenRouter, Together AI, Ollama, etc.)', 'techanum-maintenance' ); ?>
 		</p>
 		<?php
 	}
@@ -834,7 +835,7 @@ class Techanum_Maintenance_Settings {
 	 * @return string One of: auto, openai, gemini, sharpapi, edenai, aimlapi, custom.
 	 */
 	public function sanitize_ai_provider( $value ) {
-		$allowed = array( 'auto', 'openai', 'gemini', 'sharpapi', 'edenai', 'aimlapi', 'custom' );
+		$allowed = array( 'auto', 'openai', 'gemini', 'anthropic', 'sharpapi', 'edenai', 'aimlapi', 'custom' );
 		$new_val = in_array( $value, $allowed, true ) ? $value : 'auto';
 		$old_val = get_option( 'techanum_maintenance_ai_provider', 'auto' );
 
@@ -877,17 +878,6 @@ class Techanum_Maintenance_Settings {
 				?>
 			</form>
 
-			<div class="techanum-pro-teaser" style="margin-top: 24px; padding: 20px; border: 1px solid #ccd0d4; background: #f9fafb; border-radius: 6px;">
-				<h2 style="margin-top: 0; margin-bottom: 8px; font-size: 1.25em;">
-					<?php esc_html_e( 'Techanum Maintenance Pro', 'techanum-maintenance' ); ?>
-				</h2>
-				<p style="margin: 0 0 12px;">
-					<?php esc_html_e( 'The Pro version offers advanced scheduling, a countdown timer, and maintenance page templates.', 'techanum-maintenance' ); ?>
-				</p>
-				<a href="https://techanum.com/" target="_blank" rel="noopener noreferrer" class="button button-primary">
-					<?php esc_html_e( 'Learn more', 'techanum-maintenance' ); ?>
-				</a>
-			</div>
 		</div>
 
 		<script>

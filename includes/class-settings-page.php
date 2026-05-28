@@ -326,22 +326,6 @@ class Techanum_Maintenance_Settings {
 					input.attr( 'type', isPassword ? 'text' : 'password' );
 					$( this ).text( isPassword ? '" . esc_js( __( 'Hide', 'techanum-maintenance' ) ) . "' : '" . esc_js( __( 'Show', 'techanum-maintenance' ) ) . "' );
 				});
-
-				// Toggle visibility of Custom provider fields.
-				function techanumToggleCustomFields() {
-					var provider = $( '#techanum-maintenance-ai-provider' ).val();
-					if ( 'custom' === provider ) {
-						$( '.techanum-custom-provider-row' ).show();
-					} else {
-						$( '.techanum-custom-provider-row' ).hide();
-					}
-				}
-
-				// Run on page load.
-				techanumToggleCustomFields();
-
-				// Run whenever the provider dropdown changes.
-				$( '#techanum-maintenance-ai-provider' ).on( 'change', techanumToggleCustomFields );
 			});
 		";
 
@@ -710,19 +694,6 @@ class Techanum_Maintenance_Settings {
 	 */
 	public function render_custom_base_url_field() {
 		$base_url = get_option( 'techanum_maintenance_custom_base_url', '' );
-		?>
-		<tr class="techanum-custom-provider-row" style="display:none;">
-			<th scope="row"></th>
-			<td>
-		<?php
-		// Output only the field content; the <tr> wrapping is handled by the
-		// settings API, but we use the row class on a wrapping element instead.
-		// Close the fake row tags and render the actual field.
-		?>
-		</td></tr>
-		<?php
-		// WordPress settings API renders each field inside a <tr>, so we
-		// attach the hide/show class directly to the field wrapper below.
 		?>
 		<input
 			type="url"

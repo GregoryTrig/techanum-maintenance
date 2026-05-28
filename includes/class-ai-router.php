@@ -61,11 +61,6 @@ function techanum_call_ai_api( $prompt ) {
 
 // ── Router class ───────────────────────────────────────────────────────────────
 
-// Log the exact file path the moment this file is parsed by PHP.
-// This confirms which copy of the router is actually being loaded at runtime.
-// Check debug.log for: "Techanum Maintenance [Router] - Loaded from: ..."
-error_log( 'Techanum Maintenance [Router] - Loaded from: ' . __FILE__ );
-
 /**
  * Class Techanum_AI_Router
  *

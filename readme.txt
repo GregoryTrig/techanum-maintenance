@@ -1,116 +1,91 @@
 === Techanum Maintenance ===
-Contributors: gregorytriglidis
-Donate link: https://techanum.com/maintenance/
-Tags: maintenance, maintenance-mode, under-construction, coming-soon, admin-notices, ai, api
+Contributors: techanum
+Tags: maintenance mode, coming soon, under construction, ai, admin notices
 Requires at least: 6.0
 Tested up to: 6.8
+Stable tag: 1.1.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
-License: GPLv3
+License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Replace the default WordPress maintenance page with a beautiful, customizable under-construction page — and hide admin notices from non-admin users.
+Replace the default WordPress maintenance screen with a friendly, custom page — powered by AI if you choose.
 
 == Description ==
 
-**Techanum Maintenance** gives you full control over your site's maintenance experience. Instead of the plain default WordPress maintenance screen, your visitors see a clean, modern, branded page that communicates professionalism even while your site is offline.
+Techanum Maintenance gives you a beautiful, customizable maintenance page in seconds. Upload your logo, write your own message, or let AI generate one for you. The plugin also cleans up the WordPress dashboard by hiding distracting admin notices from non‑admin users.
 
-The plugin integrates with the **Google Gemini AI API** to automatically generate a friendly, dynamic maintenance message every hour — so your visitors always see something fresh. If you prefer, you can override the AI message with your own custom text at any time. You can also upload your own logo to replace the default wrench icon on the maintenance page.
+**✨ Features**
+- One‑click maintenance mode — no coding required.
+- Upload your own logo and write a custom headline / message.
+- AI‑powered messages: generate a unique maintenance message using OpenAI, Anthropic (Claude), Google Gemini, or any OpenAI‑compatible API (OpenRouter, Together AI, LM Studio, Ollama, and more).
+- "Generate with AI" button — get a fresh message instantly.
+- Hide admin notices for editors, contributors, and customers.
+- Clean, minimal settings page — no ads, no upsells.
+- Fully responsive maintenance page template.
 
-Beyond the front-end experience, Techanum Maintenance also helps you manage the **WordPress admin dashboard**. You can choose which user roles should have admin notices silently hidden — keeping the dashboard clean for editors, shop managers, or any other role that doesn't need to see plugin update banners and other notices. Administrators always retain full notice visibility.
+**🤖 Supported AI Providers**
+- OpenAI (GPT‑4o mini, GPT‑3.5 Turbo)
+- Anthropic (Claude 3 Haiku)
+- Google Gemini (2.0 Flash)
+- Any OpenAI‑compatible endpoint (Custom provider)
+- Local LLMs: LM Studio, Ollama, and similar
 
-Whether you are a developer putting the finishing touches on a client site, a store owner running a flash update, or a blogger redesigning their theme, Techanum Maintenance is the lightweight, no-bloat solution that gets out of your way and just works.
-
-== Features ==
-
-= Free =
-
-* **One-click maintenance mode toggle** — enable or disable the maintenance page from the Settings screen.
-* **Custom logo** — upload your own logo via the WordPress Media Library to brand the maintenance page.
-* **Custom message** — write your own maintenance message or let the AI generate one for you.
-* **AI-powered messages** — integrates with the Google Gemini API to generate a friendly, dynamic message (cached for 1 hour to minimise API calls).
-* **Role-based bypass** — choose which user roles (e.g. Editor, Shop Manager) can still see the normal site while maintenance mode is active. Administrators are always excluded.
-* **Admin notices management** — hide WordPress admin notices for selected user roles to keep the dashboard clean.
-* **Proper HTTP 503 response** — the maintenance page returns a 503 Service Unavailable status with a `Retry-After: 3600` header, which is correct for SEO and search-engine crawlers.
-* **Settings preserved on deactivation** — your configuration is never deleted when you deactivate the plugin; only maintenance mode is turned off.
-* **Fully internationalized** — all strings are wrapped in translation functions and a `.pot` file is included.
-* **WordPress Coding Standards** — clean, well-documented code with proper prefixes and no naming conflicts.
-
-= Pro (Coming Soon) =
-
-* **Scheduled maintenance windows** — set a start and end date/time for automatic activation and deactivation.
-* **Countdown timer** — display a live countdown on the maintenance page so visitors know when to come back.
-* **Multiple maintenance page templates** — choose from a library of professionally designed templates.
-* **Social media links** — add links to your social profiles on the maintenance page.
-* **Email notification** — notify subscribers when the site is back online.
-* **White-label mode** — remove all Techanum branding from the maintenance page.
+**💰 100% Free & Community‑Driven**
+Techanum Maintenance is free and will stay free. Development is funded by user donations and affiliate links to AI providers — you’ll never be forced to upgrade or pay for features. Join our Telegram group to suggest ideas, vote on what’s next, and help shape the plugin’s future.
 
 == Installation ==
 
-1. Download the plugin `.zip` file from the WordPress.org plugin repository.
-2. In your WordPress admin dashboard, go to **Plugins → Add New → Upload Plugin**.
-3. Choose the downloaded `.zip` file and click **Install Now**.
-4. After installation, click **Activate Plugin**.
-5. Go to **Settings → Techanum Maintenance** to configure the plugin.
-6. *(Optional)* Enter your Google Gemini API key in the **API Settings** section to enable AI-generated maintenance messages.
-7. Toggle **Enable Maintenance Page** to put your site into maintenance mode.
-
-**Manual installation:**
-
-1. Upload the `techanum-maintenance` folder to the `/wp-content/plugins/` directory via FTP.
-2. Activate the plugin through the **Plugins** screen in WordPress.
-3. Go to **Settings → Techanum Maintenance** to configure the plugin.
+1. Upload the `techanum-maintenance` folder to `/wp-content/plugins/`, or install directly from the WordPress plugin directory.
+2. Activate the plugin through the 'Plugins' menu.
+3. Go to **Settings → Techanum Maintenance**.
+4. Enable maintenance mode and customize your page.
+5. (Optional) Add an AI API key and click "Generate with AI".
 
 == Frequently Asked Questions ==
 
-= How do I get a Google Gemini API key? =
+= Is this plugin really free? =
+Yes. There are no paid plans, and the core plugin will always remain free. We accept donations and use affiliate links to cover costs.
 
-Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and sign in with your Google account. Click **Create API key**, copy the key, and paste it into the **API Key** field under **Settings → Techanum Maintenance → API Settings**. The key is stored securely in your WordPress database and is never exposed in the front end.
+= How do I get an AI API key? =
+You can get a free key from OpenRouter or Google AI Studio, or use your existing OpenAI / Anthropic key. Visit our [AI Tools page](https://techanum.com/ai-tools/) for affiliate links — signing up through them supports the plugin at no extra cost to you.
 
-= What happens if I leave the API key field empty? =
+= Does it work with local LLMs like LM Studio or Ollama? =
+Absolutely. Select "Custom (OpenAI‑compatible)" as your provider and enter your local URL (e.g., `http://localhost:1234/v1`).
 
-No problem at all. If no API key is configured (or if the API call fails for any reason), the plugin automatically falls back to a built-in static message: *"We are performing scheduled maintenance. We will be back soon!"* You can also override this at any time by entering your own text in the **Custom Maintenance Message** field.
+= What happens if the AI call fails? =
+The plugin falls back to a friendly default message, so visitors never see a broken page.
 
-= How do I exclude certain user roles from the maintenance page? =
+= Where can I suggest a new feature? =
+Join our [Telegram group](https://t.me/TechanumChat) and share your ideas. The community discusses and votes on what gets built next.
 
-Go to **Settings → Techanum Maintenance** and scroll to the **Maintenance Page** section. Under **Excluded Roles**, check the boxes next to the roles you want to bypass the maintenance page (for example, Editor or Shop Manager). Users with those roles will see the normal site even when maintenance mode is active. Administrators are always excluded and do not appear in this list.
-
-= Will I lose my settings if I deactivate the plugin? =
-
-No. Deactivating the plugin only turns off maintenance mode — it does not delete any of your saved settings (logo, message, API key, role configuration). If you re-activate the plugin later, all your settings will be exactly as you left them. If you want to remove all plugin data, you must delete the plugin entirely (not just deactivate it) — and even then, the database options are not automatically removed in the current version (a future Pro feature will add a "Delete all data on uninstall" option).
-
-= Can I define the API key in wp-config.php instead of the settings page? =
-
-Yes. As an alternative to entering the key in the admin UI, you can define the constant `TECHANUM_ANTIGRAVITY_API_KEY` in your `wp-config.php` file:
-
-`define( 'TECHANUM_ANTIGRAVITY_API_KEY', 'your-api-key-here' );`
-
-The settings-page value takes priority; the constant is used only as a fallback.
+= Where do I report a bug? =
+Open an issue on [GitHub](https://github.com/techanum/techanum-maintenance) or post in the WordPress.org support forum.
 
 == Screenshots ==
 
-1. The full Settings page with all three sections visible: Maintenance Page, Admin Notices Management, and API Settings.
-2. The maintenance page as a visitor sees it — featuring the custom logo, the AI-generated message, and the site copyright footer.
-3. The "Admin Notices Management" section with several roles checked to suppress notices in the dashboard.
-4. The Pro teaser box at the bottom of the Settings page, highlighting upcoming premium features.
-5. The Settings page with the "Enable Maintenance Page" checkbox toggled ON, clearly showing the active state.
+1. The settings page — everything in one place.
+2. The maintenance page as visitors see it.
+3. AI message generation in action.
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release.
-* One-click maintenance mode toggle with HTTP 503 + Retry-After header.
-* Custom logo upload via the WordPress Media Library.
-* Custom maintenance message field.
-* Google Gemini AI API integration for dynamic, AI-generated maintenance messages (cached for 1 hour via WordPress transients).
-* Role-based bypass: choose which roles can still access the normal site during maintenance.
-* Admin Notices Management: hide WordPress admin notices for selected user roles.
-* API key can be stored in the database or defined as a constant in wp-config.php.
-* Settings are preserved on deactivation; maintenance mode is automatically disabled on deactivation.
-* Fully internationalized with a `.pot` file included (34 translatable strings).
-* Pro teaser box with information about upcoming premium features.
-
-== Upgrade Notice ==
+= 1.1.0 =
+* Added native Anthropic (Claude) API support
+* Added "Generate with AI" button with AJAX for on‑demand message generation
+* Improved provider auto‑detection (sk‑, AIza‑, sk‑ant‑ prefixes)
+* Added Custom provider for any OpenAI‑compatible endpoint
+* Expanded error logging throughout the AI router
+* Fixed Gemini endpoint (updated model from gemini‑pro to gemini‑2.0‑flash)
+* Removed in‑plugin Pro promotion (plugin is now 100% free)
 
 = 1.0.0 =
-This is the initial release of Techanum Maintenance. No upgrade steps are required — simply install and activate.
+* Initial release
+* Custom maintenance page with logo and message
+* AI message generation (OpenAI, Gemini, AI/ML API)
+* Admin notice hiding for non‑admin roles
+
+== Support ==
+
+- [Telegram Community](https://t.me/TechanumChat) — chat, ideas, and early feature discussions
+- [WordPress.org Forum](https://wordpress.org/support/plugin/techanum-maintenance/)
+- [GitHub Issues](https://github.com/techanum/techanum-maintenance/issues)

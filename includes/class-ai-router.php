@@ -211,8 +211,9 @@ class Techanum_AI_Router {
 			return false;
 		}
 
-		$provider = $this->resolve_provider( $api_key );
-		error_log( 'Techanum Maintenance [Router::call_with_prompt] - Provider: ' . $provider . ' | Prompt: ' . substr( $prompt, 0, 80 ) . '...' );
+		$provider       = $this->resolve_provider( $api_key );
+		$prompt_excerpt = strlen( $prompt ) > 80 ? substr( $prompt, 0, 80 ) . '...' : $prompt;
+		error_log( 'Techanum Maintenance [Router::call_with_prompt] - Provider: ' . $provider . ' | Prompt: ' . $prompt_excerpt );
 
 		return $this->call_provider( $provider, $api_key, $prompt );
 	}
@@ -278,11 +279,11 @@ class Techanum_AI_Router {
 		error_log( 'Techanum Maintenance [Router] - Auto-detect: key prefix is "' . substr( $trimmed_key, 0, 10 ) . '..." (first 10 chars).' );
 
 		// Anthropic keys: standard format is "sk-ant-api03-..." (starts with "sk-ant-"),
-		// alternate/legacy formats use "sk-ant_" or a bare "sk_" prefix (contains "_").
+		// alternate/legacy formats use "sk-ant_" or a bare "sk_" prefix.
 		if (
 			0 === strpos( $trimmed_key, 'sk-ant-' )
 			|| 0 === strpos( $trimmed_key, 'sk-ant_' )
-			|| ( 0 === strpos( $trimmed_key, 'sk_' ) && false !== strpos( $trimmed_key, '_' ) )
+			|| 0 === strpos( $trimmed_key, 'sk_' )
 		) {
 			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: anthropic (key matches Anthropic key format).' );
 			return self::PROVIDER_ANTHROPIC;

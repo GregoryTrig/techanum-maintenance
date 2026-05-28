@@ -865,13 +865,12 @@ class Techanum_Maintenance_Settings {
 				<?php
 				settings_fields( $this->option_group );
 
-				// Before do_settings_sections we inject a small piece of CSS to
-				// pre-hide the custom-provider rows if the provider is not "custom"
-				// so there is no flash-of-visible-content before the JS runs.
-				$hide_style = ( 'custom' !== $current_provider ) ? ' style="display:none;"' : '';
-				echo '<style>
-					.techanum-custom-provider-row' . ( 'custom' !== $current_provider ? ' { display: none; }' : '' ) . '
-				</style>';
+			// Before do_settings_sections we inject a small piece of CSS to
+			// pre-hide the custom-provider rows if the provider is not "custom"
+			// so there is no flash-of-visible-content before the JS runs.
+			if ( 'custom' !== $current_provider ) {
+				echo '<style>.techanum-custom-provider-row { display: none; }</style>';
+			}
 
 				do_settings_sections( $this->page_slug );
 				submit_button( __( 'Save Settings', 'techanum-maintenance' ) );

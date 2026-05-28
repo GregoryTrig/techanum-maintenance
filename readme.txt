@@ -17,7 +17,7 @@ Upload your logo, write your own message, or let AI generate one for you.
 The plugin also cleans up the WordPress dashboard by hiding distracting admin notices from non‑admin users.
 Join our Telegram group: https://t.me/TechanumChat
 
-**✨ Features**
+**✨ Features** 
 - One‑click maintenance mode — no coding required.
 - Upload your own logo and write a custom headline / message.
 - AI‑powered messages: generate a unique maintenance message using OpenAI, Anthropic (Claude), Google Gemini, or any OpenAI‑compatible API (OpenRouter, Together AI, LM Studio, Ollama, and more).

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Techanum AI Router
  *
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// ── Standalone helper ──────────────────────────────────────────────────────────
+// β”€β”€ Standalone helper β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 /**
  * Call the configured AI API with a custom prompt.
@@ -43,7 +43,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 function techanum_call_ai_api( $prompt ) {
 	if ( ! class_exists( 'Techanum_AI_Router' ) ) {
 		$error_message = 'Techanum_AI_Router class is not available.';
-		error_log( 'Techanum Maintenance [techanum_call_ai_api] - ' . $error_message );
 		return new WP_Error( 'class_missing', $error_message );
 	}
 
@@ -52,14 +51,13 @@ function techanum_call_ai_api( $prompt ) {
 
 	if ( false === $result ) {
 		$error_message = 'AI API call failed. Check the error log for details.';
-		error_log( 'Techanum Maintenance [techanum_call_ai_api] - ' . $error_message );
 		return new WP_Error( 'api_failure', $error_message );
 	}
 
 	return $result;
 }
 
-// ── Router class ───────────────────────────────────────────────────────────────
+// β”€β”€ Router class β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 /**
  * Class Techanum_AI_Router
@@ -69,7 +67,7 @@ function techanum_call_ai_api( $prompt ) {
  */
 class Techanum_AI_Router {
 
-	// ── Provider identifiers ───────────────────────────────────────────────
+	// β”€β”€ Provider identifiers β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	const PROVIDER_AUTO      = 'auto';
 	const PROVIDER_OPENAI    = 'openai';
@@ -80,7 +78,7 @@ class Techanum_AI_Router {
 	const PROVIDER_CUSTOM    = 'custom';
 	const PROVIDER_ANTHROPIC = 'anthropic';
 
-	// ── Base URLs ──────────────────────────────────────────────────────────
+	// β”€β”€ Base URLs β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Provider base URLs for OpenAI-compatible endpoints.
@@ -130,7 +128,7 @@ class Techanum_AI_Router {
 	 */
 	private $gemini_base_url = 'https://generativelanguage.googleapis.com/v1/models/';
 
-	// ── Cache ──────────────────────────────────────────────────────────────
+	// β”€β”€ Cache β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Transient key for caching the generated message.
@@ -146,7 +144,7 @@ class Techanum_AI_Router {
 	 */
 	private $cache_duration = HOUR_IN_SECONDS;
 
-	// ── Public API ─────────────────────────────────────────────────────────
+	// β”€β”€ Public API β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Get a dynamic maintenance message via the configured AI provider.
@@ -164,33 +162,28 @@ class Techanum_AI_Router {
 		// Return cached message if available.
 		$cached = get_transient( $this->cache_key );
 		if ( false !== $cached ) {
-			error_log( 'Techanum Maintenance [Router] - Serving cached AI message.' );
 			return $cached;
 		}
 
 		// Bail early (without caching) if no API key is configured.
 		$api_key = $this->get_api_key();
 		if ( ! $api_key ) {
-			error_log( 'Techanum Maintenance [Router] - No API key configured; using fallback message.' );
 			return $this->get_fallback_message();
 		}
 
 		// Resolve the provider to use.
 		$provider = $this->resolve_provider( $api_key );
-		error_log( 'Techanum Maintenance [Router] - Resolved provider: ' . $provider );
 
 		// Dispatch to the correct provider using the default prompt.
 		$message = $this->call_provider( $provider, $api_key, $this->get_prompt() );
 
 		if ( $message ) {
 			set_transient( $this->cache_key, $message, $this->cache_duration );
-			error_log( 'Techanum Maintenance [Router] - AI message generated and cached successfully.' );
 			return $message;
 		}
 
-		// API call failed — return fallback WITHOUT caching so the next
+		// API call failed β€” return fallback WITHOUT caching so the next
 		// request retries the API rather than serving a stale fallback.
-		error_log( 'Techanum Maintenance [Router] - AI call failed; using fallback message.' );
 		return $this->get_fallback_message();
 	}
 
@@ -198,7 +191,7 @@ class Techanum_AI_Router {
 	 * Call the AI provider with a custom prompt (used by techanum_call_ai_api()).
 	 *
 	 * Unlike get_dynamic_message(), this method does NOT use the transient
-	 * cache and does NOT fall back to a hardcoded message — it returns false
+	 * cache and does NOT fall back to a hardcoded message β€” it returns false
 	 * on failure so the caller can decide what to do.
 	 *
 	 * @param string $prompt The prompt to send to the AI.
@@ -207,13 +200,11 @@ class Techanum_AI_Router {
 	public function call_with_prompt( $prompt ) {
 		$api_key = $this->get_api_key();
 		if ( ! $api_key ) {
-			error_log( 'Techanum Maintenance [Router::call_with_prompt] - No API key configured.' );
 			return false;
 		}
 
 		$provider       = $this->resolve_provider( $api_key );
 		$prompt_excerpt = strlen( $prompt ) > 80 ? substr( $prompt, 0, 80 ) . '...' : $prompt;
-		error_log( 'Techanum Maintenance [Router::call_with_prompt] - Provider: ' . $provider . ' | Prompt: ' . $prompt_excerpt );
 
 		return $this->call_provider( $provider, $api_key, $prompt );
 	}
@@ -227,10 +218,9 @@ class Techanum_AI_Router {
 	 */
 	public function clear_cache() {
 		delete_transient( $this->cache_key );
-		error_log( 'Techanum Maintenance [Router] - AI message cache cleared.' );
 	}
 
-	// ── Provider resolution ────────────────────────────────────────────────
+	// β”€β”€ Provider resolution β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Resolve which provider to use.
@@ -243,11 +233,11 @@ class Techanum_AI_Router {
 	 *
 	 * When set to "auto" (the default), the API key prefix is inspected:
 	 *
-	 *  - Starts with "sk-ant-"           → Anthropic (Claude) — standard key format
-	 *  - Starts with "sk-ant_" or "sk_"  → Anthropic (Claude) — alternate/legacy format
-	 *  - Starts with "sk-" (other)       → OpenAI
-	 *  - Starts with "AIza"              → Google Gemini
-	 *  - All other keys                  → AI/ML API (OpenAI-compatible, broadest support)
+	 *  - Starts with "sk-ant-"           β†’ Anthropic (Claude) β€” standard key format
+	 *  - Starts with "sk-ant_" or "sk_"  β†’ Anthropic (Claude) β€” alternate/legacy format
+	 *  - Starts with "sk-" (other)       β†’ OpenAI
+	 *  - Starts with "AIza"              β†’ Google Gemini
+	 *  - All other keys                  β†’ AI/ML API (OpenAI-compatible, broadest support)
 	 *
 	 * SharpAPI and Eden AI keys do not have a universally recognisable
 	 * prefix, so users who hold those keys should select the provider
@@ -259,24 +249,21 @@ class Techanum_AI_Router {
 	private function resolve_provider( $api_key ) {
 		$saved = get_option( 'techanum_maintenance_ai_provider', self::PROVIDER_AUTO );
 
-		// "Custom" provider — always honour the explicit selection.
+		// "Custom" provider β€” always honour the explicit selection.
 		if ( self::PROVIDER_CUSTOM === $saved ) {
-			error_log( 'Techanum Maintenance [Router] - Custom provider explicitly selected.' );
 			return self::PROVIDER_CUSTOM;
 		}
 
 		// Any other explicit provider selected (openai, gemini, sharpapi, edenai, aimlapi, anthropic).
 		if ( self::PROVIDER_AUTO !== $saved ) {
 			$provider = sanitize_key( $saved );
-			error_log( 'Techanum Maintenance [Router] - Explicit provider selected: ' . $provider );
 			return $provider;
 		}
 
 		// Auto-detect from key prefix.
-		// Trim the key defensively — leading/trailing whitespace would defeat strpos().
+		// Trim the key defensively β€” leading/trailing whitespace would defeat strpos().
 		$trimmed_key = trim( $api_key );
 
-		error_log( 'Techanum Maintenance [Router] - Auto-detect: key prefix is "' . substr( $trimmed_key, 0, 10 ) . '..." (first 10 chars).' );
 
 		// Anthropic keys: standard format is "sk-ant-api03-..." (starts with "sk-ant-"),
 		// alternate/legacy formats use "sk-ant_" or a bare "sk_" prefix.
@@ -285,27 +272,23 @@ class Techanum_AI_Router {
 			|| 0 === strpos( $trimmed_key, 'sk-ant_' )
 			|| 0 === strpos( $trimmed_key, 'sk_' )
 		) {
-			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: anthropic (key matches Anthropic key format).' );
 			return self::PROVIDER_ANTHROPIC;
 		}
 
 		// OpenAI keys start with "sk-" (but not "sk-ant-" which was caught above).
 		if ( 0 === strpos( $trimmed_key, 'sk-' ) ) {
-			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: openai (key starts with sk-).' );
 			return self::PROVIDER_OPENAI;
 		}
 
 		if ( 0 === strpos( $trimmed_key, 'AIza' ) ) {
-			error_log( 'Techanum Maintenance [Router] - Auto-detected provider: gemini (key starts with AIza).' );
 			return self::PROVIDER_GEMINI;
 		}
 
 		// Default fallback for unrecognised key formats.
-		error_log( 'Techanum Maintenance [Router] - Auto-detect: unrecognised key prefix; defaulting to aimlapi.' );
 		return self::PROVIDER_AIML;
 	}
 
-	// ── Dispatch ───────────────────────────────────────────────────────────
+	// β”€β”€ Dispatch β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Dispatch the request to the correct provider method.
@@ -344,7 +327,7 @@ class Techanum_AI_Router {
 		return $this->call_openai_compatible( $api_key, $base_url, $provider, $prompt );
 	}
 
-	// ── Anthropic (Claude) ─────────────────────────────────────────────────
+	// β”€β”€ Anthropic (Claude) β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to the Anthropic Messages API.
@@ -366,7 +349,6 @@ class Techanum_AI_Router {
 		$models = array( 'claude-3-haiku-20240307', 'claude-3-5-haiku-20241022' );
 
 		foreach ( $models as $model ) {
-			error_log( 'Techanum Maintenance [anthropic] - Sending request with model "' . $model . '".' );
 
 			$body = wp_json_encode(
 				array(
@@ -382,7 +364,6 @@ class Techanum_AI_Router {
 			);
 
 			if ( false === $body ) {
-				error_log( 'Techanum Maintenance [anthropic] - Failed to JSON-encode request body for model ' . $model . '.' );
 				return false;
 			}
 
@@ -400,28 +381,24 @@ class Techanum_AI_Router {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				error_log( 'Techanum Maintenance [anthropic] - Network error (model: ' . $model . '): ' . $response->get_error_message() );
 				return false;
 			}
 
 			$code = wp_remote_retrieve_response_code( $response );
 			$raw  = wp_remote_retrieve_body( $response );
 
-			// 404 or 400 with "not_found_error" typically means the model is unavailable — try next.
+			// 404 or 400 with "not_found_error" typically means the model is unavailable β€” try next.
 			if ( 404 === (int) $code ) {
-				error_log( 'Techanum Maintenance [anthropic] - HTTP 404 for model "' . $model . '" (not found); trying fallback. Body: ' . $raw );
 				continue;
 			}
 
 			if ( 200 !== (int) $code ) {
-				error_log( 'Techanum Maintenance [anthropic] - HTTP ' . $code . ' (model: ' . $model . ') | Response body: ' . $raw );
 				return false;
 			}
 
 			$data = json_decode( $raw, true );
 
 			if ( JSON_ERROR_NONE !== json_last_error() ) {
-				error_log( 'Techanum Maintenance [anthropic] - JSON decode error (model: ' . $model . '): ' . json_last_error_msg() . ' | Raw: ' . $raw );
 				return false;
 			}
 
@@ -430,19 +407,16 @@ class Techanum_AI_Router {
 				&& '' !== trim( $data['content'][0]['text'] )
 			) {
 				$text = sanitize_text_field( $data['content'][0]['text'] );
-				error_log( 'Techanum Maintenance [anthropic] - Success (model: ' . $model . '). Message length: ' . strlen( $text ) . ' chars.' );
 				return $text;
 			}
 
-			error_log( 'Techanum Maintenance [anthropic] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
 			return false;
 		}
 
-		error_log( 'Techanum Maintenance [anthropic] - All models exhausted. Returning false.' );
 		return false;
 	}
 
-	// ── Google Gemini ──────────────────────────────────────────────────────
+	// β”€β”€ Google Gemini β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to the Google Gemini API.
@@ -460,7 +434,7 @@ class Techanum_AI_Router {
 	 * @return string|false Generated text or false on failure.
 	 */
 	private function call_gemini( $api_key, $prompt ) {
-		// Primary model first, then fallback — mirrors the OpenAI-compatible pattern.
+		// Primary model first, then fallback β€” mirrors the OpenAI-compatible pattern.
 		$models = array( 'gemini-2.0-flash', 'gemini-1.5-flash' );
 
 		$body = wp_json_encode(
@@ -480,7 +454,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( false === $body ) {
-			error_log( 'Techanum Maintenance [Gemini] - Failed to JSON-encode request body.' );
 			return false;
 		}
 
@@ -488,7 +461,6 @@ class Techanum_AI_Router {
 			$endpoint    = $this->gemini_base_url . $model . ':generateContent';
 			$request_url = add_query_arg( 'key', $api_key, $endpoint );
 
-			error_log( 'Techanum Maintenance [Gemini] - Sending request with model "' . $model . '".' );
 
 			$response = wp_remote_post(
 				$request_url,
@@ -500,28 +472,24 @@ class Techanum_AI_Router {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				error_log( 'Techanum Maintenance [Gemini] - Network error (model: ' . $model . '): ' . $response->get_error_message() );
 				return false;
 			}
 
 			$code = wp_remote_retrieve_response_code( $response );
 			$raw  = wp_remote_retrieve_body( $response );
 
-			// 404 means the model is not available — try the next one.
+			// 404 means the model is not available β€” try the next one.
 			if ( 404 === (int) $code ) {
-				error_log( 'Techanum Maintenance [Gemini] - HTTP 404 for model "' . $model . '" (not found / deprecated); trying fallback model. Body: ' . $raw );
 				continue;
 			}
 
 			if ( 200 !== (int) $code ) {
-				error_log( 'Techanum Maintenance [Gemini] - HTTP ' . $code . ' (model: ' . $model . ') | Response body: ' . $raw );
 				return false;
 			}
 
 			$data = json_decode( $raw, true );
 
 			if ( JSON_ERROR_NONE !== json_last_error() ) {
-				error_log( 'Techanum Maintenance [Gemini] - JSON decode error (model: ' . $model . '): ' . json_last_error_msg() . ' | Raw: ' . $raw );
 				return false;
 			}
 
@@ -530,19 +498,16 @@ class Techanum_AI_Router {
 				&& '' !== trim( $data['candidates'][0]['content']['parts'][0]['text'] )
 			) {
 				$text = sanitize_text_field( $data['candidates'][0]['content']['parts'][0]['text'] );
-				error_log( 'Techanum Maintenance [Gemini] - Success (model: ' . $model . '). Message length: ' . strlen( $text ) . ' chars.' );
 				return $text;
 			}
 
-			error_log( 'Techanum Maintenance [Gemini] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
 			return false;
 		}
 
-		error_log( 'Techanum Maintenance [Gemini] - All models exhausted. Returning false.' );
 		return false;
 	}
 
-	// ── Custom (OpenAI-compatible) provider ────────────────────────────────
+	// β”€β”€ Custom (OpenAI-compatible) provider β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to the user-configured custom OpenAI-compatible endpoint.
@@ -568,12 +533,10 @@ class Techanum_AI_Router {
 		$model    = trim( get_option( 'techanum_maintenance_custom_model', '' ) );
 
 		if ( empty( $base_url ) ) {
-			error_log( 'Techanum Maintenance [custom] - No custom base URL configured. Aborting.' );
 			return false;
 		}
 
 		if ( empty( $model ) ) {
-			error_log( 'Techanum Maintenance [custom] - No custom model configured. Aborting.' );
 			return false;
 		}
 
@@ -587,20 +550,16 @@ class Techanum_AI_Router {
 			$request_url = trailingslashit( $base_url ) . 'chat/completions';
 		}
 
-		error_log( 'Techanum Maintenance [custom] - Base URL: ' . $base_url );
-		error_log( 'Techanum Maintenance [custom] - Model: ' . $model );
-		error_log( 'Techanum Maintenance [custom] - Request URL: ' . $request_url );
 
 		$result = $this->do_openai_request( $api_key, $request_url, 'custom', $model, $prompt );
 
 		if ( false === $result ) {
-			error_log( 'Techanum Maintenance [custom] - Request failed. Returning false.' );
 		}
 
 		return $result;
 	}
 
-	// ── OpenAI-compatible providers ────────────────────────────────────────
+	// β”€β”€ OpenAI-compatible providers β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to an OpenAI-compatible /v1/chat/completions endpoint.
@@ -630,7 +589,6 @@ class Techanum_AI_Router {
 		// trailingslashit() ensures exactly one slash between base and path.
 		$request_url = trailingslashit( $base_url ) . 'v1/chat/completions';
 
-		error_log( 'Techanum Maintenance [' . $provider . '] - Sending request to: ' . $request_url );
 
 		// Try gpt-4o-mini first; fall back to gpt-3.5-turbo if it fails.
 		$models = array( 'gpt-4o-mini', 'gpt-3.5-turbo' );
@@ -640,10 +598,8 @@ class Techanum_AI_Router {
 			if ( false !== $result ) {
 				return $result;
 			}
-			error_log( 'Techanum Maintenance [' . $provider . '] - Model "' . $model . '" failed; trying next model.' );
 		}
 
-		error_log( 'Techanum Maintenance [' . $provider . '] - All models exhausted. Returning false.' );
 		return false;
 	}
 
@@ -673,7 +629,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( false === $body ) {
-			error_log( 'Techanum Maintenance [' . $provider . '] - Failed to JSON-encode request body for model ' . $model . '.' );
 			return false;
 		}
 
@@ -690,7 +645,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Techanum Maintenance [' . $provider . '] - Network error (model: ' . $model . '): ' . $response->get_error_message() );
 			return false;
 		}
 
@@ -698,14 +652,12 @@ class Techanum_AI_Router {
 		$raw  = wp_remote_retrieve_body( $response );
 
 		if ( 200 !== (int) $code ) {
-			error_log( 'Techanum Maintenance [' . $provider . '] - HTTP ' . $code . ' (model: ' . $model . ') | Response body: ' . $raw );
 			return false;
 		}
 
 		$data = json_decode( $raw, true );
 
 		if ( JSON_ERROR_NONE !== json_last_error() ) {
-			error_log( 'Techanum Maintenance [' . $provider . '] - JSON decode error (model: ' . $model . '): ' . json_last_error_msg() . ' | Raw: ' . $raw );
 			return false;
 		}
 
@@ -714,15 +666,13 @@ class Techanum_AI_Router {
 			&& '' !== trim( $data['choices'][0]['message']['content'] )
 		) {
 			$text = sanitize_text_field( $data['choices'][0]['message']['content'] );
-			error_log( 'Techanum Maintenance [' . $provider . '] - Success (model: ' . $model . '). Message length: ' . strlen( $text ) . ' chars.' );
 			return $text;
 		}
 
-		error_log( 'Techanum Maintenance [' . $provider . '] - Unexpected response structure (model: ' . $model . '). Full body: ' . $raw );
 		return false;
 	}
 
-	// ── Eden AI ────────────────────────────────────────────────────────────
+	// β”€β”€ Eden AI β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to the Eden AI text/chat endpoint.
@@ -737,7 +687,6 @@ class Techanum_AI_Router {
 	 * @return string|false Generated text or false on failure.
 	 */
 	private function call_edenai( $api_key, $prompt ) {
-		error_log( 'Techanum Maintenance [edenai] - Sending request to Eden AI.' );
 
 		$body = wp_json_encode(
 			array(
@@ -751,7 +700,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( false === $body ) {
-			error_log( 'Techanum Maintenance [edenai] - Failed to JSON-encode request body.' );
 			return false;
 		}
 
@@ -768,7 +716,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Techanum Maintenance [edenai] - Network error: ' . $response->get_error_message() );
 			return false;
 		}
 
@@ -776,14 +723,12 @@ class Techanum_AI_Router {
 		$raw  = wp_remote_retrieve_body( $response );
 
 		if ( 200 !== (int) $code ) {
-			error_log( 'Techanum Maintenance [edenai] - HTTP ' . $code . ' | Response body: ' . $raw );
 			return false;
 		}
 
 		$data = json_decode( $raw, true );
 
 		if ( JSON_ERROR_NONE !== json_last_error() ) {
-			error_log( 'Techanum Maintenance [edenai] - JSON decode error: ' . json_last_error_msg() );
 			return false;
 		}
 
@@ -792,17 +737,15 @@ class Techanum_AI_Router {
 			foreach ( $data as $provider_key => $provider_data ) {
 				if ( isset( $provider_data['generated_text'] ) && '' !== trim( $provider_data['generated_text'] ) ) {
 					$text = sanitize_text_field( $provider_data['generated_text'] );
-					error_log( 'Techanum Maintenance [edenai] - Success via sub-provider "' . $provider_key . '". Length: ' . strlen( $text ) . ' chars.' );
 					return $text;
 				}
 			}
 		}
 
-		error_log( 'Techanum Maintenance [edenai] - Unexpected response structure. Full body: ' . $raw );
 		return false;
 	}
 
-	// ── SharpAPI ───────────────────────────────────────────────────────────
+	// β”€β”€ SharpAPI β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Send a POST request to the SharpAPI content generation endpoint.
@@ -817,7 +760,6 @@ class Techanum_AI_Router {
 	 * @return string|false Generated text or false on failure.
 	 */
 	private function call_sharpapi( $api_key, $prompt ) {
-		error_log( 'Techanum Maintenance [sharpapi] - Sending request to SharpAPI.' );
 
 		$body = wp_json_encode(
 			array(
@@ -829,7 +771,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( false === $body ) {
-			error_log( 'Techanum Maintenance [sharpapi] - Failed to JSON-encode request body.' );
 			return false;
 		}
 
@@ -846,7 +787,6 @@ class Techanum_AI_Router {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Techanum Maintenance [sharpapi] - Network error: ' . $response->get_error_message() );
 			return false;
 		}
 
@@ -854,28 +794,24 @@ class Techanum_AI_Router {
 		$raw  = wp_remote_retrieve_body( $response );
 
 		if ( 200 !== (int) $code ) {
-			error_log( 'Techanum Maintenance [sharpapi] - HTTP ' . $code . ' | Response body: ' . $raw );
 			return false;
 		}
 
 		$data = json_decode( $raw, true );
 
 		if ( JSON_ERROR_NONE !== json_last_error() ) {
-			error_log( 'Techanum Maintenance [sharpapi] - JSON decode error: ' . json_last_error_msg() );
 			return false;
 		}
 
 		if ( isset( $data['data']['attributes']['content'] ) && '' !== trim( $data['data']['attributes']['content'] ) ) {
 			$text = sanitize_text_field( $data['data']['attributes']['content'] );
-			error_log( 'Techanum Maintenance [sharpapi] - Success. Length: ' . strlen( $text ) . ' chars.' );
 			return $text;
 		}
 
-		error_log( 'Techanum Maintenance [sharpapi] - Unexpected response structure. Full body: ' . $raw );
 		return false;
 	}
 
-	// ── Helpers ────────────────────────────────────────────────────────────
+	// β”€β”€ Helpers β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Retrieve the API key from the WordPress option or wp-config.php constant.
@@ -897,13 +833,11 @@ class Techanum_AI_Router {
 		// Alternative option name (mentioned in task requirements).
 		$alt_option = get_option( 'techanum_ai_api_key', '' );
 		if ( ! empty( $alt_option ) ) {
-			error_log( 'Techanum Maintenance [Router] - Using API key from techanum_ai_api_key option.' );
 			return trim( $alt_option );
 		}
 
 		// Legacy wp-config.php constant (backward compatibility).
 		if ( defined( 'TECHANUM_ANTIGRAVITY_API_KEY' ) && TECHANUM_ANTIGRAVITY_API_KEY ) {
-			error_log( 'Techanum Maintenance [Router] - Using API key from TECHANUM_ANTIGRAVITY_API_KEY constant.' );
 			return TECHANUM_ANTIGRAVITY_API_KEY;
 		}
 
@@ -933,3 +867,4 @@ class Techanum_AI_Router {
 		);
 	}
 }
+

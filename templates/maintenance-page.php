@@ -19,36 +19,36 @@ if ( ! headers_sent() ) {
 }
 
 // Retrieve custom settings.
-$custom_logo    = get_option( 'techanum_maintenance_logo', '' );
-$custom_message = get_option( 'techanum_maintenance_custom_message', '' );
+$techanum_maintenance_custom_logo    = get_option( 'techanum_maintenance_logo', '' );
+$techanum_maintenance_custom_message = get_option( 'techanum_maintenance_custom_message', '' );
 
 // If a custom message is set, it takes priority; otherwise request one from the AI router.
-if ( ! empty( $custom_message ) ) {
-	$maintenance_message = $custom_message;
+if ( ! empty( $techanum_maintenance_custom_message ) ) {
+	$techanum_maintenance_message = $techanum_maintenance_custom_message;
 } else {
 	// Prefer the multi-provider AI Router; fall back to the legacy Gemini-only class.
 	if ( class_exists( 'Techanum_AI_Router' ) ) {
-		$ai_router           = new Techanum_AI_Router();
-		$maintenance_message = $ai_router->get_dynamic_message();
+		$techanum_maintenance_ai_router           = new Techanum_AI_Router();
+		$techanum_maintenance_message = $techanum_maintenance_ai_router->get_dynamic_message();
 	} else {
 		// Backward-compatibility fallback: load the original Gemini-only class.
 		if ( ! class_exists( 'Techanum_Antigravity_API' ) ) {
 			require_once dirname( __DIR__ ) . '/includes/class-antigravity-api.php';
 		}
-		$antigravity_api     = new Techanum_Antigravity_API();
-		$maintenance_message = $antigravity_api->get_dynamic_message();
+		$techanum_maintenance_antigravity_api     = new Techanum_Antigravity_API();
+		$techanum_maintenance_message = $techanum_maintenance_antigravity_api->get_dynamic_message();
 	}
 }
 
 /* translators: %s: site name */
-$page_title = sprintf( __( 'Under Maintenance – %s', 'techanum-maintenance' ), get_bloginfo( 'name' ) );
+$techanum_maintenance_page_title = sprintf( __( 'Under Maintenance – %s', 'techanum-maintenance' ), get_bloginfo( 'name' ) );
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo esc_html( $page_title ); ?></title>
+	<title><?php echo esc_html( $techanum_maintenance_page_title ); ?></title>
 	<style>
 		* {
 			margin: 0;
@@ -125,10 +125,10 @@ $page_title = sprintf( __( 'Under Maintenance – %s', 'techanum-maintenance' ),
 </head>
 <body>
 	<div class="maintenance-container">
-		<?php if ( ! empty( $custom_logo ) ) : ?>
+		<?php if ( ! empty( $techanum_maintenance_custom_logo ) ) : ?>
 			<div class="maintenance-logo">
 				<img
-					src="<?php echo esc_url( $custom_logo ); ?>"
+					src="<?php echo esc_url( $techanum_maintenance_custom_logo ); ?>"
 					alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
 				/>
 			</div>
@@ -139,7 +139,7 @@ $page_title = sprintf( __( 'Under Maintenance – %s', 'techanum-maintenance' ),
 			<?php esc_html_e( 'We are in scheduled maintenance', 'techanum-maintenance' ); ?>
 		</h1>
 		<p class="maintenance-message">
-			<?php echo esc_html( $maintenance_message ); ?>
+			<?php echo esc_html( $techanum_maintenance_message ); ?>
 		</p>
 		<p class="maintenance-footer">
 			&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?>

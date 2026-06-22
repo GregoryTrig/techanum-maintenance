@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Techanum Antigravity API Class
  *
@@ -103,7 +103,7 @@ class Techanum_Antigravity_API {
 			return $message;
 		}
 
-		// API call failed — return the fallback WITHOUT caching it so the next
+		// API call failed β€” return the fallback WITHOUT caching it so the next
 		// request will retry the API rather than serving a stale fallback forever.
 		return $this->get_fallback_message();
 	}
@@ -150,7 +150,6 @@ class Techanum_Antigravity_API {
 
 		// Check for network errors.
 		if ( is_wp_error( $response ) ) {
-			error_log( 'Techanum Maintenance - API Error: ' . $response->get_error_message() );
 			return false;
 		}
 
@@ -158,7 +157,6 @@ class Techanum_Antigravity_API {
 		$response_code = wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $response_code ) {
 			$response_body_err = wp_remote_retrieve_body( $response );
-			error_log( 'Techanum Maintenance - API HTTP Error: ' . $response_code . ' | Body: ' . $response_body_err );
 			return false;
 		}
 
@@ -173,7 +171,6 @@ class Techanum_Antigravity_API {
 			return sanitize_text_field( $data['candidates'][0]['content']['parts'][0]['text'] );
 		}
 
-		error_log( 'Techanum Maintenance - Unexpected API response structure.' );
 		return false;
 	}
 
@@ -202,3 +199,4 @@ class Techanum_Antigravity_API {
 		delete_transient( $this->cache_key );
 	}
 }
+

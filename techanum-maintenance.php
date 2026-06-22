@@ -22,21 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Load the plugin text domain for translations.
- *
- * Hooked to 'init' so that WordPress has fully set up the locale
- * before we attempt to load the .mo file.
- */
-function techanum_maintenance_load_textdomain() {
-	load_plugin_textdomain(
-		'techanum-maintenance',
-		false,
-		dirname( plugin_basename( __FILE__ ) ) . '/languages'
-	);
-}
-add_action( 'init', 'techanum_maintenance_load_textdomain' );
-
-/**
  * Bootstrap the plugin classes.
  *
  * All class files are required and instantiated inside the

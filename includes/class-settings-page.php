@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Techanum Maintenance Settings Page
  *
@@ -156,7 +156,7 @@ class Techanum_Maintenance_Settings {
 			)
 		);
 
-		// ── Section: Maintenance Page ──────────────────────────────────────────
+		// β”€β”€ Section: Maintenance Page β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 		add_settings_section(
 			'techanum_maintenance_page',
 			__( 'Maintenance Page', 'techanum-maintenance' ),
@@ -196,7 +196,7 @@ class Techanum_Maintenance_Settings {
 			'techanum_maintenance_page'
 		);
 
-		// ── Section: Admin Notices ─────────────────────────────────────────────
+		// β”€β”€ Section: Admin Notices β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 		add_settings_section(
 			'techanum_admin_notices',
 			__( 'Admin Notices Management', 'techanum-maintenance' ),
@@ -212,7 +212,7 @@ class Techanum_Maintenance_Settings {
 			'techanum_admin_notices'
 		);
 
-		// ── Section: API Settings ──────────────────────────────────────────────
+		// β”€β”€ Section: API Settings β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 		add_settings_section(
 			'techanum_api_settings',
 			__( 'API Settings', 'techanum-maintenance' ),
@@ -457,7 +457,7 @@ class Techanum_Maintenance_Settings {
 		}
 
 		$editable_roles = get_editable_roles();
-		// Administrators are always excluded — remove them from the UI.
+		// Administrators are always excluded β€” remove them from the UI.
 		unset( $editable_roles['administrator'] );
 
 		if ( empty( $editable_roles ) ) {
@@ -511,7 +511,7 @@ class Techanum_Maintenance_Settings {
 		}
 
 		$editable_roles = get_editable_roles();
-		// Administrators always see notices — remove them from the UI.
+		// Administrators always see notices β€” remove them from the UI.
 		unset( $editable_roles['administrator'] );
 
 		if ( empty( $editable_roles ) ) {
@@ -662,7 +662,7 @@ class Techanum_Maintenance_Settings {
 				value="<?php echo esc_attr( $api_key ); ?>"
 				class="regular-text"
 				autocomplete="new-password"
-				placeholder="<?php echo $has_value ? esc_attr( '••••••••' ) : esc_attr__( 'Enter your API key', 'techanum-maintenance' ); ?>"
+				placeholder="<?php echo $has_value ? esc_attr( 'β€Άβ€Άβ€Άβ€Άβ€Άβ€Άβ€Άβ€Ά' ) : esc_attr__( 'Enter your API key', 'techanum-maintenance' ); ?>"
 			/>
 			<button type="button" class="button" id="techanum-toggle-api-key">
 				<?php esc_html_e( 'Show', 'techanum-maintenance' ); ?>
@@ -732,7 +732,7 @@ class Techanum_Maintenance_Settings {
 		<?php
 	}
 
-	// ── AJAX handler ───────────────────────────────────────────────────────────
+	// β”€β”€ AJAX handler β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * AJAX handler: generate an AI maintenance message on demand.
@@ -745,13 +745,11 @@ class Techanum_Maintenance_Settings {
 	public function ajax_generate_ai_message() {
 		// Verify nonce.
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'techanum_generate_ai_message' ) ) {
-			error_log( 'Techanum Maintenance [AJAX] - Nonce verification failed.' );
 			wp_send_json_error( array( 'error' => 'Security check failed. Please refresh the page and try again.' ) );
 		}
 
 		// Capability check.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			error_log( 'Techanum Maintenance [AJAX] - Insufficient permissions.' );
 			wp_send_json_error( array( 'error' => 'You do not have permission to perform this action.' ) );
 		}
 
@@ -764,40 +762,34 @@ class Techanum_Maintenance_Settings {
 		}
 
 		if ( ! function_exists( 'techanum_call_ai_api' ) ) {
-			error_log( 'Techanum Maintenance [AJAX] - techanum_call_ai_api() not available.' );
 			wp_send_json_error( array( 'error' => 'AI function is not available. Please check the plugin installation.' ) );
 		}
 
 		// Check that an API key is configured.
 		$api_key = get_option( 'techanum_maintenance_api_key', '' );
 		if ( empty( trim( $api_key ) ) ) {
-			error_log( 'Techanum Maintenance [AJAX] - No API key configured.' );
 			wp_send_json_error( array( 'error' => 'No API key is configured. Please enter your API key in the API Settings section and save before generating.' ) );
 		}
 
 		$prompt = 'Write a friendly maintenance message for a website, 2-3 sentences.';
 
-		error_log( 'Techanum Maintenance [AJAX] - Calling AI API on demand.' );
 
 		$result = techanum_call_ai_api( $prompt );
 
 		if ( is_wp_error( $result ) ) {
 			$error_message = $result->get_error_message();
-			error_log( 'Techanum Maintenance [AJAX] - AI call returned WP_Error: ' . $error_message );
 			wp_send_json_error( array( 'error' => $error_message ) );
 		}
 
 		if ( empty( $result ) ) {
-			error_log( 'Techanum Maintenance [AJAX] - AI call returned empty result.' );
 			wp_send_json_error( array( 'error' => 'The AI returned an empty response. Please check your API key and provider settings.' ) );
 		}
 
-		error_log( 'Techanum Maintenance [AJAX] - AI message generated successfully. Length: ' . strlen( $result ) . ' chars.' );
 
 		wp_send_json_success( array( 'message' => $result ) );
 	}
 
-	// ── Option sanitizers ──────────────────────────────────────────────────────
+	// β”€β”€ Option sanitizers β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€β”€
 
 	/**
 	 * Sanitize the API key option.
@@ -912,3 +904,4 @@ class Techanum_Maintenance_Settings {
 		<?php
 	}
 }
+
